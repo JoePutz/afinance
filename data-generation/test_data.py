@@ -17,7 +17,7 @@ BEARER_TOKEN = os.getenv("BEARER_TOKEN")
 fake = Faker()
 
 bank = {
-        "routingNumber" : "085340798",
+        "routing_number" : "085340798",
         "address" : "123 Main St",
         "city" : "Anytown",
         "state" : "CA",
@@ -31,7 +31,7 @@ branch = {
     "state" : "TX",
     "zipcode" : "54321",
     "phone" : "888-777-6655",
-    "bankID" : 1
+    "bank_id" : 1
 }
 
 # Example test for add_bank function
@@ -53,7 +53,7 @@ def test_add_bank():
 
 def test_bad_bank():
     bad_bank = {
-        "routingNumber": "085340798",
+        "routing_number": "085340798",
         "address": "123 Main St",
         "city" : False,
         "state": "CA",
@@ -89,7 +89,7 @@ def test_bad_branch():
         "state" : "TX",
         "zipcode" : "54321",
         "phone" : False,
-        "bankID" : 1
+        "bank_id" : 1
     }
     with requests_mock.Mocker() as m:
         m.post("http://localhost:8083/branches", json={"error": "Bad request"}, status_code=400)
