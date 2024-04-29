@@ -1,0 +1,41 @@
+# portal-landing-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: landing-portal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: landing-portal
+  template:
+    metadata:
+      labels:
+        app: landing-portal
+    spec:
+      containers:
+      - name: landing-portal
+        image: landing-nginx:v2
+        ports:
+        - containerPort: 3007
+        env:
+        - name: REACT_APP_API
+          value: http://localhost:8080
+        - name: REACT_APP_MEMBER_DASHBOARD_URL
+          value: http://localhost:4200
+
+---
+# portal-landing-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: landing-nodeport
+spec:
+  selector:
+    app: landing-portal
+  ports:
+    - protocol: TCP
+      port: 3007
+      targetPort: 80
+
+

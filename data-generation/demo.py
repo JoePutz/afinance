@@ -141,7 +141,7 @@ def create_application_applicants():
     spacing()
 
 def get_applications():
-    get_app_url=f'http://localhost:8071/applications'
+    get_app_url=f'{BASE_URL_APPS}/applications'
     params = {"unpaged": "true", "paged": "false"}
     response = requests.get(get_app_url, headers=headers, params=params).json()
     
@@ -179,7 +179,7 @@ def create_users():
     display_options()
 
 def get_users():
-    get_users_url = f"http://localhost:8070/users"
+    get_users_url = f"{BASE_URL_USERS}/users"
     # Make a GET request to the API endpoint with the headers
     params = {"unpaged": "true", "paged": "false"}
     response = requests.get(get_users_url, headers=headers, params=params).json()

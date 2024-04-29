@@ -1,0 +1,43 @@
+# portal-admin-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: admin-portal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: admin-portal
+  template:
+    metadata:
+      labels:
+        app: admin-portal
+    spec:
+      containers:
+      - name: admin-portal
+        image: admin-nginx:v1
+        ports:
+        - containerPort: 3000
+        env:
+        - name: REACT_APP_API_BASEURL
+          value: http://localhost:8080
+        - name: REACT_APP_TOKEN_NAME
+          value: x2wOrQfY6RQIfE1ETwZtpflC19KyfN9N
+        - name: REACT_APP_BROKER_URL
+          value: http://localhost:3000
+
+---
+# portal-admin-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: admin-nodeport
+spec:
+  selector:
+    app: admin-portal
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 80
+
+
