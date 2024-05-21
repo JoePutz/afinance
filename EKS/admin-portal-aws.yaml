@@ -1,0 +1,47 @@
+# portal-admin-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: admin-portal
+  labels:
+    app: admin-portal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: admin-portal
+  template:
+    metadata:
+      labels:
+        app: admin-portal
+        target: portals
+    spec:
+      containers:
+      - name: admin-portal
+        image: 767397723308.dkr.ecr.us-east-1.amazonaws.com/aline-financial-jp:admin-aws-v3
+        ports:
+        - containerPort: 3000
+        env:
+        - name: REACT_APP_API_BASEURL
+          value: http://a2d1caf77098d4f83b7912fe3964db50-1192861274.us-east-1.elb.amazonaws.com:8080
+        - name: REACT_APP_TOKEN_NAME
+          value: x2wOrQfY6RQIfE1ETwZtpflC19KyfN9N
+        - name: REACT_APP_BROKER_URL
+          value: http://a07dff4af00f9458b93c1f384f619955-953394416.us-east-1.elb.amazonaws.com:3007
+
+---
+# portal-admin-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: admin-lb
+spec:
+  type: LoadBalancer
+  selector:
+    app: admin-portal
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 80
+
+

@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transaction-micro
+  labels:
+    app: transaction-micro
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: transaction-micro
+  template:
+    metadata:
+      labels:
+        app: transaction-micro
+        target: microservice
+    spec:
+      containers:
+        - name: transaction-micro
+          image: 767397723308.dkr.ecr.us-east-1.amazonaws.com/aline-financial-jp:transaction-micro-v1
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: DB_HOST
+              value: alinedb.c9aaakygudzw.us-east-1.rds.amazonaws.com
+            - name: DB_NAME
+              value: alinedb
+            - name: DB_PORT
+              value: "3306"
+            - name: DB_USERNAME
+              value: root
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: aline-secret
+                  key: MYSQL_ROOT_PASSWORD
+          ports:
+            - containerPort: 8073
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: transaction-ms-nodeport
+spec:
+  type: ClusterIP
+  selector:
+    app: transaction-micro
+  ports:
+    - protocol: TCP
+      port: 8073
+      targetPort: 8073

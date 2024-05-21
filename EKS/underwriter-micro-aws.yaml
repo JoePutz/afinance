@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: underwriter-micro
+  labels:
+    app: underwriter-micro
 spec:
   replicas: 1
   selector:
@@ -11,14 +13,19 @@ spec:
     metadata:
       labels:
         app: underwriter-micro
+        target: microservice
     spec:
       containers:
         - name: underwriter-micro
-          image: underwriter-micro:v2
+          image: 767397723308.dkr.ecr.us-east-1.amazonaws.com/aline-financial-jp:underwriter-micro-v1
           imagePullPolicy: IfNotPresent
           env:
-            - name: DB_URL
-              value: jdbc:mysql://aline-mysql:3306/alinedb
+            - name: DB_HOST
+              value: alinedb.c9aaakygudzw.us-east-1.rds.amazonaws.com
+            - name: DB_NAME
+              value: alinedb
+            - name: DB_PORT
+              value: "3306"
             - name: DB_USERNAME
               value: root
             - name: DB_PASSWORD
@@ -34,11 +41,10 @@ kind: Service
 metadata:
   name: under-ms-nodeport
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: underwriter-micro
   ports:
     - protocol: TCP
       port: 8071
       targetPort: 8071
-      nodePort: 30071

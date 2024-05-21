@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: aline-ingress
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: instance
+spec:
+  rules:
+    # - host: https://31FFB3CA5C1A9E411943E49F6D3561DE.gr7.us-east-1.eks.amazonaws.com
+      http:
+        path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: admin-nodeport
+            port: number: 3000

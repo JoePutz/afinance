@@ -1,0 +1,52 @@
+# aline-gateway-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aline-gateway
+  labels: 
+    app: aline-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aline-gateway
+  template:
+    metadata:
+      labels:
+        app: aline-gateway
+    spec:
+      containers:
+      - name: aline-gateway
+        image: 767397723308.dkr.ecr.us-east-1.amazonaws.com/aline-financial-jp:aline-gateway-aws-v2
+        ports:
+        - containerPort: 8080
+        env:
+        - name: APP_PORT
+          value: "8080"
+        - name: APP_SERVICE_HOST
+          value: gateway-svc.default.svc.cluster.local
+        - name: PORTAL_LANDING
+          value: http://a07dff4af00f9458b93c1f384f619955-953394416.us-east-1.elb.amazonaws.com:3007
+        - name: PORTAL_DASHBOARD
+          value: http://a7d5cb83d24f2440b9ab4e679955bf0e-885102123.us-east-1.elb.amazonaws.com:4200
+        - name: PORTAL_ADMIN
+          value: http://aa165e51750be4135adf1716f6a271dc-1269160691.us-east-1.elb.amazonaws.com:3000
+        - name: JWT_SECRET_KEY
+          value: x2wOrQfY6RQIfE1ETwZtpflC19KyfN9N
+        - name: ENCRYPT_SECRET_KEY
+          value: mf5ZIxRkF6IJj1AIVreII2ZQ4uhtJ8zC
+
+---
+# aline-gateway-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway-lb
+spec:
+  type: LoadBalancer
+  selector:
+    app: aline-gateway
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080

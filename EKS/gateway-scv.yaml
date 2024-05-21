@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway-svc
+spec:
+  clusterIP: None
+  selector:
+    target: microservice
+  ports:
+    - protocol: TCP
+      name: user-micro
+      port: 8070
+      targetPort: 8070
+    - protocol: TCP
+      name: underwriter-micro
+      port: 8071
+      targetPort: 8071
+    - protocol: TCP
+      name: account-micro
+      port: 8072
+      targetPort: 8072
+    - protocol: TCP
+      name: transaction-micro
+      port: 8073
+      targetPort: 8073
+    - protocol: TCP
+      name: bank-micro
+      port: 8083
+      targetPort: 8083

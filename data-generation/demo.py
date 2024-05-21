@@ -208,4 +208,6 @@ def spacing():
     print("=================")
 
 if __name__ == "__main__":
+    # print(make_member(1))
+    # get_users()
     display_options()

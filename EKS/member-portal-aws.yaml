@@ -15,27 +15,27 @@ spec:
     spec:
       containers:
       - name: member-portal
-        image: member-nginx:v3
+        image: 767397723308.dkr.ecr.us-east-1.amazonaws.com/aline-financial-jp:member-aws-v1
         ports:
         - containerPort: 4200
         env:
         - name: api
-          value: http://localhost:8080/api
+          value: http://a2d1caf77098d4f83b7912fe3964db50-1192861274.us-east-1.elb.amazonaws.com:8080/api
         - name: landingPortal
-          value: http://localhost:3007
+          value: http://a07dff4af00f9458b93c1f384f619955-953394416.us-east-1.elb.amazonaws.com:3007
+
 
 ---
 # portal-dashboard-service.yaml
 apiVersion: v1
 kind: Service
 metadata:
-  name: member-nodeport
+  name: member-lb
 spec:
+  type: LoadBalancer
   selector:
     app: member-portal
   ports:
     - protocol: TCP
       port: 4200
       targetPort: 80
-
-
