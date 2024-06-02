@@ -18,14 +18,14 @@ spec:
     spec:
       containers:
       - name: landing-portal
-        image: 767397723308.dkr.ecr.us-east-1.amazonaws.com/aline-financial-jp:landing-aws-v1
+        image: 767397723308.dkr.ecr.us-east-1.amazonaws.com/aline-financial-jp:landing-portal-demo-v1
         ports:
         - containerPort: 3007
         env:
         - name: REACT_APP_API
-          value: http://a2d1caf77098d4f83b7912fe3964db50-1192861274.us-east-1.elb.amazonaws.com:8080
+          value: http://a4d98e47c12f34885ae3b657f7859e5c-1182517644.us-east-1.elb.amazonaws.com:8080
         - name: REACT_APP_MEMBER_DASHBOARD_URL
-          value: http://a7d5cb83d24f2440b9ab4e679955bf0e-885102123.us-east-1.elb.amazonaws.com:4200
+          value: http://a161cbb6f97da493a9a40b4f5310ec8a-1862234697.us-east-1.elb.amazonaws.com:4200
 
 ---
 # portal-landing-service.yaml
