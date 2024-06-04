@@ -3,3 +3,4 @@
 /terraform
 /terra-ecs-2
 /terraform-eks
+*.pem
