@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: user-micro
-          image: 767397723308.dkr.ecr.us-east-1.amazonaws.com/aline-financial-jp:user-micro-11
+          image: 767397723308.dkr.ecr.us-east-1.amazonaws.com/aline-financial-jp:user-micro-jenkins-latest
           imagePullPolicy: IfNotPresent
           env:
             - name: DB_HOST

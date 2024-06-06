@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: aline-gateway
-        image: 767397723308.dkr.ecr.us-east-1.amazonaws.com/aline-financial-jp:aline-gateway-aws-v2
+        image: 767397723308.dkr.ecr.us-east-1.amazonaws.com/aline-financial-jp:aline-gateway-jenkins-latest
         ports:
         - containerPort: 8080
         env:

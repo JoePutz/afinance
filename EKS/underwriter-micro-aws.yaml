@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: underwriter-micro
-          image: 767397723308.dkr.ecr.us-east-1.amazonaws.com/aline-financial-jp:underwriter-micro-v1
+          image: 767397723308.dkr.ecr.us-east-1.amazonaws.com/aline-financial-jp:underwriter-micro-jenkins-latest
           imagePullPolicy: IfNotPresent
           env:
             - name: DB_HOST

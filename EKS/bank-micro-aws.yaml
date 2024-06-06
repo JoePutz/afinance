@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: bank-micro
-          image: 767397723308.dkr.ecr.us-east-1.amazonaws.com/aline-financial-jp:bank-micro-v2
+          image: 767397723308.dkr.ecr.us-east-1.amazonaws.com/aline-financial-jp:bank-micro-jenkins-latest
           imagePullPolicy: IfNotPresent
           env:
             - name: DB_HOST
