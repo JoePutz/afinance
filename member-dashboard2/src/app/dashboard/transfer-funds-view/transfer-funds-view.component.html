@@ -1,0 +1,143 @@
+<form #transferForm="ngForm" (submit)="transferFunds()">
+  <div class="container border rounded-3 p-3 shadow-sm mb-4 position-relative">
+    <h1 class="h5 text-primary">{{viewTitle}}</h1>
+    <hr class="line-divider"/>
+<!--    Quick Transfer-->
+      <div class="d-flex my-2">
+        <div class="flex-grow-1 mx-2">
+          <div class="form-floating">
+            <select id="fromAccount"
+                    required
+                    name="fromAccount"
+                    class="form-select"
+                    [disabled]="transferring"
+                    [(ngModel)]="fromAccount"
+                    (ngModelChange)="onSelectAccounts()">
+              <option [ngValue]="undefined">--</option>
+              <ng-container *ngFor="let account of accounts">
+                <ng-container *ngIf="account !== toAccount">
+                  <option [ngValue]="account">
+                    {{account | accountLabel: false : true}}
+                  </option>
+                </ng-container>
+              </ng-container>
+            </select>
+            <label class="form-label" for="fromAccount">From</label>
+          </div>
+        </div>
+        <div class="d-flex justify-content-center align-items-center">
+          <button type="button" class="btn btn-outline-primary rounded-circle" (click)="switchAccounts()" [disabled]="transferring">
+            <fa-icon icon="exchange-alt"></fa-icon>
+          </button>
+        </div>
+        <div class="flex-grow-1 mx-2">
+          <div class="form-floating">
+            <select id="toAccount"
+                    name="toAccount"
+                    class="form-select"
+                    required
+                    [disabled]="transferring"
+                    [(ngModel)]="toAccount"
+                    (ngModelChange)="onSelectAccounts()">
+              <option [ngValue]="undefined">--</option>
+              <ng-container *ngFor="let account of accounts">
+                <ng-container *ngIf="account !== fromAccount">
+                  <option [ngValue]="account">
+                    {{account | accountLabel: false : true}}
+                  </option>
+                </ng-container>
+              </ng-container>
+            </select>
+            <label class="form-label" for="toAccount">To</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center py-2">
+        <input class="transfer-amount animate__animated d-inline-block"
+               [disabled]="transferring"
+               name="amount"
+               currencyMask
+               required
+               [ngClass]="{'text-danger': transferAmountTooMuch(), 'animate__headShake': transferAmountTooMuch()}"
+               [(ngModel)]="transferAmount"/>
+      </div>
+
+      <div class="py-2" *ngIf="mode!=='quick'">
+        <div class="form-floating">
+          <textarea class="form-control h-100"
+                    name="memo"
+                    id="memo"
+                    rows="3"
+                    placeholder="Memo"
+                    [maxLength]="250"
+                    [(ngModel)]="memo"></textarea>
+          <label class="form-label" for="memo">Memo</label>
+          <span class="form-status">{{memo.length}}/250</span>
+        </div>
+      </div>
+
+      <div class="text-center">
+        <button type="submit"
+                [disabled]="transferForm.invalid || transferForm.errors || transferAmount < 0.01 || transferAmountTooMuch() || transferring"
+                class="btn w-100 btn-primary">
+          <span *ngIf="!transferring; else loading">Transfer</span>
+        </button>
+      </div>
+  </div>
+</form>
+
+<ng-template #loading>
+  <div class="spinner-border spinner-border-sm text-light"></div>
+</ng-template>
+
+<ng-template #transferModal let-modal>
+  <div class="modal-content">
+    <div class="modal-body">
+      <div class="d-flex justify-content-end align-items-center">
+        <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+      </div>
+      <div class="text-center animate__animated animate__flipInX animate__fast">
+        <fa-icon icon="exchange-alt" size="4x" class="text-primary"></fa-icon>
+      </div>
+      <div class="text-center my-3">
+        <h3 class="h4 fw-bold">Transfer Funds?</h3>
+      </div>
+      <div class="text-center my-4 font-noto-sans">
+        Would you like to transfer <span class="text-success font-montserrat">{{transferAmount | currency}}</span> from
+        <br/>
+        <span *ngIf="fromAccount" class="text-primary d-inline-flex justify-content-center align-items-center p-2 mx-1 rounded bg-light border">{{fromAccount! | accountLabel}}</span> to
+        <span *ngIf="toAccount" class="text-primary d-inline-flex justify-content-center align-items-center p-2 mx-1 rounded bg-light border">{{toAccount! | accountLabel}}</span>?
+      </div>
+    </div>
+    <div class="modal-footer justify-content-around">
+      <button type="button" class="btn btn-outline-primary rounded-pill" aria-label="Close" (click)="sendTransferRequests(modal)">
+        Confirm
+      </button>
+      <button type="button" class="btn btn-outline-danger rounded-pill" aria-label="Close" (click)="modal.dismiss()">
+        Cancel
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #sendTransferModal let-modal>
+  <div class="modal-content">
+    <div class="modal-body">
+      <div class="d-flex justify-content-end align-items-center">
+        <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+      </div>
+      <div class="text-center animate__animated animate__zoomIn animate__faster">
+        <fa-icon icon="check-circle" size="5x" class="text-success"></fa-icon>
+      </div>
+      <div class="text-center my-3">
+        <div class="h3">Transfer Funds Successful!</div>
+      </div>
+    </div>
+    <div class="modal-footer justify-content-around">
+      <button type="button" class="btn btn-outline-primary rounded-pill" aria-label="Close" (click)="modal.dismiss()">
+        Close
+      </button>
+    </div>
+  </div>
+</ng-template>

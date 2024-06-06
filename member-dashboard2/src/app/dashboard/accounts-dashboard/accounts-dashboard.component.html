@@ -1,0 +1,13 @@
+<div class="container">
+  <ng-container *ngIf="accounts else loading">
+    <app-account-view *ngFor="let account of accounts"
+                      viewType="list"
+                      [account]="account"></app-account-view>
+  </ng-container>
+</div>
+
+<ng-template #loading>
+  <div class="text-center p-5">
+    <div class="spinner-border text-primary"></div>
+  </div>
+</ng-template>

@@ -1,0 +1,29 @@
+<div class="min-vh-100 min-vw-100 bg-image position-absolute top-0 start-0">
+</div>
+<div class="d-flex flex-column align-items-center justify-content-center min-vh-100">
+  <div class="login-container">
+    <div class="animate__animated animate__zoomIn animate__fastest login-modal rounded-3 bg-white p-5">
+      <div class="text-center mb-5 animate__animated animate__delay-half-second" [ngClass]="{
+          'animate__zoomIn animate__fastest': success,
+          'animate__headShake': !success
+        }">
+        <fa-icon [icon]="icon" size="5x" [ngClass]="{
+          'text-success': success,
+          'text-danger': !success
+        }"></fa-icon>
+      </div>
+
+      <div class="container text-center" style="max-width: 500px">
+        <h2 class="h2 fw-bold" [ngClass]="{
+          'text-danger': !success
+        }">{{title}}</h2>
+        <p class="text-muted">{{message}}</p>
+      </div>
+
+      <div class="text-center mt-5">
+        <button class="btn btn-lg btn-outline-primary rounded-pill my-2"
+                routerLink="/login">Log In</button>
+      </div>
+    </div>
+  </div>
+</div>

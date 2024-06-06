@@ -1,0 +1,80 @@
+<!-- Mobile Navigation -->
+<div class="position-fixed min-vh-100 d-md-none d-block" [style]="{zIndex: 1010}">
+  <div class="py-2 bg-dark text-light position-fixed top-0 start-0 w-100 fs-4 shadow-sm">
+    <div class="d-flex justify-content-between mx-3">
+      <div>
+        <img [draggable]="false"
+             src="assets/images/logo.svg"
+             alt="Aline Financial"
+             style="width: 45px"/>
+      </div>
+      <div class="d-flex align-items-center">
+        <button class="btn btn-dark d-flex justify-content-center align-items-center"
+                type="button"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#dashboard-nav-drawer">
+          <fa-icon icon="bars" size="2x" transform="shrink-3"></fa-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-dark text-light position-fixed bottom-0 start-0 w-100">
+    <div class="d-flex justify-content-center">
+      <app-tab-nav [tabs]="tabs"></app-tab-nav>
+    </div>
+  </div>
+  <app-drawer [routes]="routes"></app-drawer>
+</div>
+
+<!-- Desktop Navigation -->
+<div class="navbar navbar-dark bg-dark position-fixed top-0 start-0 w-100 d-md-block d-none p-0">
+  <div class="container">
+    <a class="navbar-brand d-flex justify-content-start align-items-center">
+      <span class="text-primary">Aline</span>
+      <img draggable="false" src="assets/images/logo.svg" style="height: 32px" alt="$"/>
+      Financial
+    </a>
+    <ul class="nav h-100 navbar-expand">
+      <li class="nav-item" *ngFor="let tab of tabs">
+        <a class="nav-link p-3" [routerLink]="tab.route" [routerLinkActive]="['nav-active']">{{tab.label}}</a>
+      </li>
+      <li class="nav-item my-auto mx-5">
+        <div class="dropdown">
+          <a class="btn btn-link text-decoration-none shadow-none"
+             role="button"
+             href="#"
+             id="user-menu-link"
+             data-bs-toggle="dropdown">
+            <app-user-avatar></app-user-avatar>
+          </a>
+          <div class="dropdown-menu dropdown-menu-dark shadow dropdown-menu-end animate__animated animate__zoomIn animate__supersonic_speed">
+            <div class="dropdown-header text-light">
+              <div *ngIf="fullName && membershipId">
+                {{this.fullName}}
+                <div class="text-muted">
+                  <div class="fw-bold" ngbTooltip="Username" placement="start">
+                    <fa-icon icon="user" class="me-1"></fa-icon>
+                    {{this.username}}
+                  </div>
+                  <div ngbTooltip="Membership ID" placement="start">
+                    <fa-icon icon="id-card" class="me-1"></fa-icon>
+                    {{this.membershipId}}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="dropdown-divider"></div>
+              <ng-container *ngFor="let route of routes">
+                <button *ngIf="!route.isTab" class="dropdown-item"
+                        [routerLink]="route.route">{{route.label}}</button>
+              </ng-container>
+
+            <div class="dropdown-divider"></div>
+            <button class="dropdown-item" (click)="logout()" routerLink="/login">Log Out</button>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>

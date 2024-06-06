@@ -1,0 +1,14 @@
+<div class="container my-3">
+
+  <ng-container *ngIf="userProfile else spinner">
+    <app-profile-view [userProfile]="userProfile"></app-profile-view>
+    <app-profile-form [userProfile]="userProfile"></app-profile-form>
+  </ng-container>
+
+  <ng-template #spinner>
+    <div class="text-center w-100">
+      <div class="spinner-border text-primary"></div>
+    </div>
+  </ng-template>
+
+</div>

@@ -1,0 +1,4 @@
+<div *ngIf="transactions">
+  <app-transaction-row *ngFor="let transaction of transactions"
+                       [transaction]="transaction"></app-transaction-row>
+</div>

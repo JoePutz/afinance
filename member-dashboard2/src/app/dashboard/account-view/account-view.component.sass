@@ -1,0 +1,10 @@
+@import "src/styles"
+
+.account-view
+  background-color: white
+  &.action
+    cursor: pointer
+    &:focus, &:active
+      background-color: lighten($primary, 25)
+      .action-icon
+        color: $primary

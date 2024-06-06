@@ -1,0 +1,82 @@
+@import "./colors"
+@import "bootstrap-grid"
+
+.outline-none
+  outline: none
+
+.bg-image
+  background-image: url("~src/assets/images/architecture.jpg")
+  background-size: cover
+  background-position: center
+  filter: blur(3px)
+  position: absolute
+  top: 0
+  left: 0
+  min-width: 100vw
+  min-height: 100vh
+  display: none
+
+.bg-gray
+  background-color: #5e6d7d
+
+.text-black
+  color: black
+
+.text-muted-light
+  color: transparentize($light, 0.35)
+
+.text-muted-light-2
+  color: transparentize($light, 0.45)
+
+.app-modal-container
+  min-width: 300px !important
+
+.app-modal
+  width: 100%
+  padding: 1.5rem
+  box-shadow: none
+
+.otp-input
+  white-space: nowrap
+  overflow-x: hidden
+  padding-block: 1.5rem
+
+@include media-breakpoint-up(sm)
+  .app-modal
+    max-height: none
+
+@include media-breakpoint-up(md)
+  .bg-image
+    display: block
+
+  .app-modal-container
+    width: 360px !important
+
+  .app-modal
+    max-width: 360px
+    max-height: none
+    padding: 3.5rem 2.5rem
+    box-shadow: $box-shadow
+
+.line-divider
+  color: $primary
+  opacity: 1
+  width: 100%
+  min-height: 0.15rem
+  padding: 0
+  animation: line-divider-enter 0.5s ease
+
+@keyframes line-divider-enter
+  from
+    width: 0
+    opacity: 0
+
+  to
+    width: 100%
+    opacity: 1
+
+
+.action
+  transition: filter 0.15s ease
+  &:active, &:focus
+    filter: brightness(0.85)

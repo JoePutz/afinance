@@ -1,0 +1,25 @@
+<div class="container">
+  <div class="d-flex justify-content-start w-100">
+    <button class="btn" (click)="goBack()">
+      <fa-icon icon="arrow-left" size="2x"></fa-icon>
+    </button>
+  </div>
+  <div class="d-none d-md-block container">
+    <div class="d-flex justify-content-between align-items-center">
+      <div class="my-2 flex-grow-1">
+        <app-account-view [account]="fromAccount!" emptyMessage="Please select account to transfer from."></app-account-view>
+      </div>
+      <div class="text-center flex-shrink-1 m-2">
+        <fa-icon icon="exchange-alt" size="2x" class="text-muted"></fa-icon>
+      </div>
+      <div class="my-2 flex-grow-1">
+        <app-account-view [account]="toAccount!" emptyMessage="Please select account to transfer to."></app-account-view>
+      </div>
+    </div>
+  </div>
+  <app-transfer-funds-view mode="full"
+                           [accounts]="accounts"
+                           [resetOnTransfer]="false"
+                           (selectAccounts)="onSelectAccounts($event)"
+                           (reloadAccounts)="loadAccounts()"></app-transfer-funds-view>
+</div>

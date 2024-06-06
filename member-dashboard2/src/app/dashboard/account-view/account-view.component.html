@@ -1,0 +1,67 @@
+<div class="container shadow-sm rounded-3 account-view p-1 my-2" [ngClass]="{'action': link}" [ngSwitch]="viewType">
+  <div *ngIf="account; else empty" [routerLink]="link ? '/dashboard/accounts/' + account?.id : undefined">
+    <!-- Full Account View -->
+    <div *ngSwitchCase="'full'" class="d-flex justify-content-center align-items-center flex-column p-3 my-2">
+      <div class="font-noto-sans fw-bold d-flex justify-content-center align-items-center text-center">
+        {{account | accountLabel: accountNumberVisible}}
+        <button class="btn shadow-none text-muted" [ngbTooltip]="accountNumberVisible ? 'Hide account number' : 'Show account number'" placement="top">
+          <fa-icon [icon]="eyeIcon" (click)="toggleVisible()"></fa-icon>
+        </button>
+      </div>
+      <div class="fs-1 my-3 font-montserrat">{{account.balance / 100 | currency}}</div>
+      <div class="small text-muted">
+        <span *ngIf="account.availableBalance && account.type === 'CHECKING'">Available Balance: {{account.availableBalance / 100 | currency}}</span>
+        <span *ngIf="account.apy">Annual Percentage Yield: {{account.apy | percent: '1.1'}}</span>
+      </div>
+    </div>
+
+    <!-- Preview Account View -->
+    <div *ngSwitchCase="'preview'" class="d-flex justify-content-between align-items-center p-3 my-2">
+      <div class="font-noto-sans fw-bold">{{account | accountLabel}}</div>
+      <div class="font-montserrat">{{account.balance / 100 | currency}}</div>
+      <div class="d-flex justify-content-center align-items-center">
+        <fa-icon icon="angle-right" class="action-icon"></fa-icon>
+      </div>
+    </div>
+
+    <!-- List Account View -->
+    <div *ngSwitchCase="'list'" class="d-flex p-3 my-2 dropdown">
+      <div class="d-flex justify-content-between align-items-center flex-column flex-grow-1 me-2">
+        <div class="d-flex justify-content-between align-items-center w-100">
+          <div class="font-noto-sans fw-bold">{{account | accountLabel}}</div>
+          <div class="font-montserrat">{{account.balance / 100 | currency}}</div>
+        </div>
+        <div class="font-noto-sans w-100 text-end small text-muted fw-normal">
+          <span *ngIf="account.availableBalance && account.type === 'CHECKING'">Available Balance: {{account.availableBalance / 100 | currency}}</span>
+          <span *ngIf="account.apy">Annual Percentage Yield: {{account.apy | percent: '1.1'}}</span>
+        </div>
+      </div>
+      <div class="mx-1">
+        <a class="btn px-2" data-bs-toggle="dropdown" href="#" role="button" [id]="'dropdownBtn' + account.id" aria-expanded="false">
+          <fa-icon icon="ellipsis-v" transform="grow-5" class="action-icon"></fa-icon>
+        </a>
+        <ul class="dropdown-menu shadow-sm" [attr.aria-labelledby]="'dropdownBtn' + account.id">
+          <li>
+            <button class="dropdown-item">
+              Set Nickname
+            </button>
+          </li>
+          <li>
+            <button class="dropdown-item" [routerLink]="'/dashboard/accounts/' + account.id">
+              View Account
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<ng-template #empty>
+  <div style="min-height: 200px; max-width: 600px;" class="container border border-1 d-flex justify-content-center align-items-center">
+    <div class="text-muted fw-light">
+      {{emptyMessage}}
+    </div>
+  </div>
+</ng-template>

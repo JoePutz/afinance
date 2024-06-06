@@ -1,0 +1,33 @@
+<div class="container">
+  <div class="row row-cols-1 row-cols-md-2">
+    <div class="col d-flex align-items-stretch">
+      <div class="container border rounded-3 p-3 shadow-sm mb-4">
+        <div *ngIf="accounts else loading">
+          <h1 class="h5 text-primary">My Accounts</h1>
+          <hr class="line-divider"/>
+          <app-account-view *ngFor="let account of accounts"
+                            [account]="account"
+                            [link]="true"
+                            viewType="preview">
+          </app-account-view>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <ng-container *ngIf="accounts">
+        <app-transfer-funds-view mode="quick"
+                                 [transactionsView]="transactionsView"
+                                 [accounts]="accounts"
+                                 (reloadAccounts)="loadAccounts()"
+                                 viewTitle="Quick Transfer"></app-transfer-funds-view>
+      </ng-container>
+    </div>
+  </div>
+  <app-transactions-view #transactionsView mode="MEMBER" viewTitle="My Transactions"></app-transactions-view>
+</div>
+
+<ng-template #loading>
+  <div class="text-center text-primary my-5">
+    <div class="spinner-border"></div>
+  </div>
+</ng-template>

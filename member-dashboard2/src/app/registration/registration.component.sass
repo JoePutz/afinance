@@ -1,0 +1,70 @@
+@import "~src/styles"
+
+.airplane-bg-img
+  background-image: url("~src/assets/images/building_plane.jpg")
+  background-size: cover
+  background-position: center
+  filter: brightness(70%)
+
+
+.logo
+  width: 3.5rem
+  line-height: 100%
+  filter: drop-shadow(0 0 15px transparentize($black, 0.8))
+
+.logo-title
+  text-shadow: 0 0 15px transparentize($black, 0.8)
+
+.logo-subtitle
+  text-shadow: 0 0 15px transparentize($black, 0.8)
+
+.rightPanel
+  width: 100%
+
+@include media-breakpoint-up(lg)
+  .leftPanel
+    width: 55%
+    max-height: 100vh
+
+  .rightPanel
+    width: 45%
+    max-height: 100vh
+
+.leftPanelAnimation
+  animation: leftPanelInit 3s linear, leftPanelSlide 0.5s ease 3s
+
+.rightPanelAnimation
+  animation: rightPanelInit 3s linear, rightPanelSlide 0.5s ease 3s
+
+@keyframes leftPanelInit
+  from, to
+    width: 100%
+
+@keyframes rightPanelInit
+  from, to
+    width: 0
+    transform: scaleX(0)
+
+@keyframes leftPanelSlide
+  from
+    width: 100%
+
+  to
+    width: 55%
+
+@keyframes rightPanelSlide
+  from
+    width: 0
+    transform: scaleX(0)
+
+  to
+    width: 45%
+    transform: scaleX(1)
+
+
+@keyframes leftPanelSlideUp
+  from
+    transform: translateY(0)
+
+  to
+    transform: translateY(-100vh)

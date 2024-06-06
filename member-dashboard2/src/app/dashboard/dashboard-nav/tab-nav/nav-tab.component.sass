@@ -1,0 +1,32 @@
+@import "~src/styles"
+@import "~src/styles/colors"
+
+.nav-tab
+  position: relative
+  display: block
+  padding: $spacer
+  text-decoration: none
+  min-width: 90px
+  color: $light
+  transition: color 0.2s ease, background-color 0.2s ease
+  &:focus
+    color: $primary
+  &::after
+    position: absolute
+    bottom: 0
+    left: 0
+    right: 0
+    margin: auto
+    background-color: $primary
+    color: transparent
+    width: 0
+    content: '.'
+    height: 3px
+    transition: width 0.3s ease
+
+
+.active
+  color: $primary
+  &.nav-tab
+    &::after
+      width: 100%

@@ -1,0 +1,18 @@
+<div class="container">
+
+  <div class="d-flex justify-content-start align-items-center">
+    <button class="btn p-0" (click)="goBack()">
+      <fa-icon icon="arrow-left" size="2x"></fa-icon>
+    </button>
+  </div>
+
+  <div *ngIf="account">
+    <app-account-view viewType="full" [account]="account"></app-account-view>
+  </div>
+
+  <app-transactions-view *ngIf="account"
+                         viewTitle="Transactions"
+                         mode="ACCOUNT"
+                         [accountId]="account.id"></app-transactions-view>
+
+</div>

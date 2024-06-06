@@ -1,0 +1,25 @@
+@import "src/styles"
+
+.transfer-amount
+  display: block
+  max-width: 200px
+  margin: auto
+  text-align: center
+  outline: none
+  font-family: 'Montserrat', sans-serif
+  font-size: 2rem
+  border: none
+  background: transparent
+  transition: color 0.3s ease
+  &:focus
+    color: $primary
+
+.form-floating
+  .form-status
+    position: absolute
+    bottom: 0
+    right: 0
+    display: inline-block
+    padding-inline: $spacer
+    pointer-events: none
+    color: $text-muted

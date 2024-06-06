@@ -1,0 +1,7 @@
+[submodule "aline-user-microservice"]
+	path = aline-user-microservice
+	url = git@git1.smoothstack.com:cohorts/2024/2024-03-11_cloud/resources/capstone/aline-financial/aline-user-microservice.git
+
+[submodule "core"]
+	path = core
+	url = https://github.com/Smoothstack-CCT/core

@@ -1,0 +1,52 @@
+<div class="offcanvas offcanvas-end bg-dark text-light" [tabIndex]="-1" id="dashboard-nav-drawer">
+
+  <div class="w-100 bg-gray">
+    <div class="d-flex justify-content-end">
+      <button type="button" class="btn bg-transparent p-2 mx-3 shadow-none text-light" data-bs-dismiss="offcanvas">
+        <fa-icon icon="arrow-right" size="2x"></fa-icon>
+      </button>
+    </div>
+    <div class="w-100 d-flex flex-column justify-content-center align-items-center">
+      <fa-layers size="6x">
+        <fa-icon icon="circle" class="text-dark" transform="shrink-2"></fa-icon>
+        <fa-icon icon="user-circle" class="user-avatar text-light"></fa-icon>
+      </fa-layers>
+      <div class="text-center my-3 mb-2 text-light">
+        <div class="fs-3 fw-bold font-montserrat">{{fullName}}</div>
+        <div class="small font-noto-sans">{{username}}</div>
+        <div class="small text-muted-light">
+          <fa-icon icon="id-card" class="me-1"></fa-icon> {{membershipId}}
+        </div>
+      </div>
+      <div class="my-2">
+        <button type="button"
+                data-bs-dismiss="offcanvas"
+                class="btn btn-sm btn-link rounded-pill text-muted-light-2"
+                routerLink="./profile">
+          Edit Profile
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex text-end justify-content-end w-100 m-0 overflow-scroll">
+    <ul class="list-unstyled w-100">
+      <li *ngFor="let route of routes" class="w-100 drawer-item py-1 px-2">
+        <button class="btn btn-link link-light font-noto-sans text-end text-decoration-none d-inline-block w-100 shadow-none fs-4"
+                data-bs-dismiss="offcanvas"
+           [routerLink]="route.route">
+          {{route.label}}
+        </button>
+      </li>
+    </ul>
+  </div>
+
+  <div class="drawer-footer">
+    <button type="button"
+            (click)="logout()"
+            class="btn btn-lg btn-outline-primary rounded-pill w-100">
+      Log Out
+    </button>
+  </div>
+
+</div>

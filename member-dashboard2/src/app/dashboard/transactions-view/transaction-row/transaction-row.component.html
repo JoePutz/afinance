@@ -1,0 +1,62 @@
+<div class="d-flex justify-content-around flex-row py-2 border-bottom transaction-row"
+     (click)="open(content)"
+     *ngIf="transaction">
+  <div class="me-1">{{transaction.date | date: 'MM/dd/yy'}}</div>
+  <div class="mx-1">{{transaction | transactionDescription}}</div>
+  <div class="d-flex flex-column mx-2 font-montserrat text-end">
+    <div [ngClass]="{'text-danger': isDecreasing(transaction)}">{{transaction | transactionAmount}}</div>
+    <div class="small text-muted">{{transaction.postedBalance / 100 | currency}}</div>
+  </div>
+</div>
+
+<ng-template #content let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-title">Transaction Details</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body">
+    <table class="table table-responsive table-borderless">
+      <tbody>
+        <tr>
+          <th>Date: </th>
+          <td>{{transaction.date | date: 'MM/dd/yyyy hh:mm a'}}</td>
+        </tr>
+        <tr>
+          <th>Type: </th>
+          <td>
+            <span class="text-info">{{transaction | transactionEnum: 'type'}}</span>
+          </td>
+        </tr>
+        <tr>
+          <th>Amount: </th>
+          <td [ngClass]="{'text-danger': isDecreasing(transaction)}">{{transaction | transactionAmount}}</td>
+        </tr>
+        <tr>
+          <th>Status: </th>
+          <td [ngClass]="{
+              'text-success': transaction.status === 0,
+              'text-danger': transaction.status === 1,
+              'text-muted': transaction.status === 2
+              }">{{transaction | transactionEnum: 'status'}}</td>
+        </tr>
+        <tr>
+          <th>Account: </th>
+          <td>{{transaction.accountNumber}}</td>
+        </tr>
+        <tr *ngIf="transaction.merchant">
+          <th>Merchant: </th>
+          <td>{{transaction.merchant.name}} <span class="text-muted fst-italic">({{transaction.merchant.code}})</span></td>
+        </tr>
+        <tr>
+          <th>Description: </th>
+          <td>{{transaction | transactionDescription}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="modal-footer justify-content-center">
+    <button type="button" class="btn btn-outline-dark" aria-label="Close" (click)="modal.dismiss()">
+      Close
+    </button>
+  </div>
+</ng-template>

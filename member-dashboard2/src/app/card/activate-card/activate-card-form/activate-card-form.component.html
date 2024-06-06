@@ -1,0 +1,146 @@
+<div *ngIf="!activated; else successMessage">
+  <form [formGroup]="activateCardForm" (ngSubmit)="activateCard()">
+
+    <div *ngIf="errorMessage" class="alert alert-danger small p-2 animate__animated animate__headShake animate__fast">
+      {{errorMessage}}
+    </div>
+
+    <div class="row">
+      <div class="col mt-3">
+        <div class="fs-5">Card Information</div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12 mt-2">
+        <div class="form-floating">
+          <input id="cardNumber"
+                 formControlName="cardNumber"
+                 type="tel"
+                 inputmode="numeric"
+                 autocomplete="cc-number"
+                 class="form-control"
+                 mask="0000 0000 0000 0000"
+                 placeholder="Card number"/>
+          <label for="cardNumber" class="form-label">Card Number</label>
+          <app-form-control-validation-indicator
+            defaultMessage="Enter your 16 digit card number."
+            errorMessage="Card number is not valid. Please check your card again for errors."
+            [validateControl]="activateCardForm.get('cardNumber')">
+          </app-form-control-validation-indicator>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col mt-2">
+        <div class="form-floating">
+          <input id="securityCode"
+                 formControlName="securityCode"
+                 type="tel"
+                 inputmode="numeric"
+                 class="form-control"
+                 mask="000"
+                 placeholder="CVV"/>
+          <label for="securityCode" class="form-label">CVV</label>
+          <app-form-control-validation-indicator
+            defaultMessage="Enter your 3 digit security code."
+            errorMessage="The 3 digit security code is not valid. Please check your card again for errors."
+            [validateControl]="activateCardForm.get('securityCode')">
+          </app-form-control-validation-indicator>
+        </div>
+      </div>
+      <div class="col mt-2">
+        <div class="form-floating">
+          <input id="expDate"
+                 formControlName="expirationDate"
+                 type="tel"
+                 inputmode="numeric"
+                 class="form-control"
+                 mask="00/0000"
+                 [showMaskTyped]="true"
+                 [dropSpecialCharacters]="false"
+                 placeholder="Expiration Date"/>
+          <label for="expDate" class="form-label">Exp. Date</label>
+          <app-form-control-validation-indicator
+            defaultMessage="Enter your card's expiration date. (MM/YYYY)"
+            errorMessage="Enter your card's expiration date. (MM/YYYY)"
+            [validateControl]="activateCardForm.get('expirationDate')">
+          </app-form-control-validation-indicator>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col mt-3">
+        <div class="fs-5">Card Holder</div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col col-md-12 mt-2">
+        <div class="form-floating">
+          <input id="dateOfBirth"
+                 formControlName="dateOfBirth"
+                 type="tel"
+                 inputmode="numeric"
+                 class="form-control"
+                 mask="00/00/0000"
+                 [showMaskTyped]="true"
+                 [dropSpecialCharacters]="false"
+                 placeholder="Date of Birth"/>
+          <label for="dateOfBirth" class="form-label">Date of Birth</label>
+          <app-form-control-validation-indicator
+            defaultMessage="Enter your date of birth."
+            errorMessage="Enter your date of birth."
+            [validateControl]="activateCardForm.get('dateOfBirth')">
+          </app-form-control-validation-indicator>
+        </div>
+      </div>
+      <div class="col col-md-12 mt-2">
+        <div class="form-floating">
+          <input id="lastFourOfSSN"
+                 formControlName="lastFourOfSSN"
+                 type="tel"
+                 inputmode="numeric"
+                 class="form-control"
+                 mask="0000"
+                 placeholder="Last 4 of SSN"/>
+          <label for="lastFourOfSSN" class="form-label">Last 4 of SSN</label>
+          <app-form-control-validation-indicator
+            defaultMessage="Enter the last four of your SSN."
+            errorMessage="Enter the last four of your SSN."
+            [validateControl]="activateCardForm.get('lastFourOfSSN')">
+          </app-form-control-validation-indicator>
+        </div>
+      </div>
+    </div>
+
+    <div class="row my-5">
+      <div class="col text-center">
+        <button type="submit" class="btn btn-primary" [disabled]="activateCardForm.invalid || loading">
+          Activate Card <span *ngIf="loading" class="spinner-grow spinner-grow-sm"></span>
+        </button>
+      </div>
+    </div>
+
+  </form>
+</div>
+
+<ng-template #successMessage>
+  <div class="d-flex flex-column justify-content-center align-items-center h-100 text-center">
+    <div class="text-center my-5 animate__animated animate__delay-half-second animate__zoomIn animate__fastest">
+      <fa-icon icon="check-circle" size="5x" class="text-success"></fa-icon>
+    </div>
+    <div class="fs-5">
+      Your card was <span class="text-success">successfully activated!</span>
+    </div>
+    <div class="small text-secondary mt-5">
+      Start managing your money anywhere you go with the Member Dashboard!
+    </div>
+    <div class="text-center py-2">
+      <button type="button" class="btn btn-primary" routerLink="/login" [disabled]="loading">
+        Log In
+      </button>
+    </div>
+  </div>
+</ng-template>

@@ -1,0 +1,229 @@
+<!--Welcome Page-->
+<ng-template #templateWelcome>
+  <div class="registration-content animate__animated animate__fadeSlideInLeft animate__fast">
+    <div class="container p-5">
+      <h1 class="display-3 my-3">Welcome!</h1>
+      <div class="w-75 pb-3">
+        <hr class="line-divider"/>
+      </div>
+      <div class="fs-2 mb-2">
+        You're about to enter <br/> <span class="text-primary fw-bold">your dashboard.</span>
+      </div>
+      <div class="mt-3 text-muted fw-light fs-5">
+        Transfer. Deposit. Manage. <span class="text-primary fw-normal">Your bank</span> anywhere.
+      </div>
+      <app-animated-wallet [scale]="0.85"></app-animated-wallet>
+      <div class="text-center mt-3">
+        <button class="btn btn-outline-primary btn-lg rounded-pill py-md-3 px-md-4 fs-4"
+                (click)="nextTemplate()">
+          Get Started
+          <fa-icon icon="angle-right"></fa-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<!--Need to apply?-->
+<ng-template #templateBeforeWeStart>
+  <div class="registration-content animate__animated animate__fadeSlideInLeft">
+    <div class="container p-5">
+      <h1 class="display-4 my-3">Before we start...</h1>
+      <div class="w-100 pb-3">
+        <hr class="line-divider"/>
+      </div>
+      <div class="fs-2 mt-5 mb-2">
+        Which best <span class="text-primary">describes you?</span>
+        <p class="text-muted fs-5 fst-italic">You must be a member to use the dashboard.</p>
+      </div>
+      <div class="row row-cols-1 row-cols-lg-2 mt-5">
+        <div class="col text-center my-2">
+          <a [href]="landingPortalSignup">
+            <button class="btn btn-outline-secondary w-100 fs-5 py-3 rounded-pill btn-change-text">
+            <span class="btn-default-text">
+              I am not yet a member.
+            </span>
+              <span class="btn-hover-text">
+              Apply for an account. <fa-icon icon="user-plus"></fa-icon>
+            </span>
+            </button>
+          </a>
+        </div>
+        <div class="col text-center my-2">
+          <button class="btn btn-outline-primary w-100 fs-5 py-3 rounded-pill btn-change-text"
+                  (click)="nextTemplate()">
+            <span class="btn-default-text">
+              I am an existing member.
+            </span>
+            <span class="btn-hover-text">
+              Continue registration <fa-icon icon="user-check"></fa-icon>
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<!--Registration Form-->
+<ng-template #templateRegistrationForm>
+  <div class="registration-content animate__animated animate__fadeSlideInLeft">
+    <div class="container p-5">
+      <h1 class="display-4 my-3"><span class="text-primary">Register</span> an account</h1>
+      <div class="w-100 pb-3">
+        <hr class="line-divider"/>
+      </div>
+      <div class="mt-2 mb-4 fs-6 text-muted fw-light">
+        Start taking advantage of the Aline Financial <span class="fw-normal">Member Dashboard</span> and create an account!
+        <div class="my-2 fs-6 fst-italic fw-normal small">
+          Your money and your bank belongs with you anywhere you go.
+        </div>
+      </div>
+      <form [formGroup]="registrationForm" (ngSubmit)="registerUser()">
+        <div class="container">
+          <div class="row row-cols-1 row-cols-md-2">
+            <div class="col my-2">
+              <div class="form-floating position-relative w-100">
+                <input type="text"
+                       id="membershipId"
+                       formControlName="membershipId"
+                       mask="00000000"
+                       class="form-control"
+                       placeholder="Membership ID"/>
+                <label class="form-label"
+                       for="membershipId">Membership ID</label>
+                <app-form-control-validation-indicator
+                  defaultMessage="Enter your membership ID. This will help us find all of your accounts."
+                  errorMessage="Membership ID must be a 8 digits in length."
+                  [validateControl]="registrationForm.get('membershipId')">
+                </app-form-control-validation-indicator>
+              </div>
+            </div>
+            <div class="col my-2">
+              <div class="form-floating position-relative w-100">
+                <input type="text"
+                       id="lastFourOfSSN"
+                       formControlName="lastFourOfSSN"
+                       mask="0000"
+                       [dropSpecialCharacters]="true"
+                       class="form-control"
+                       placeholder="Last 4 of SSN"/>
+                <label class="form-label"
+                       for="lastFourOfSSN">Last 4 of SSN</label>
+                <app-form-control-validation-indicator
+                  defaultMessage="Enter the last four of your SSN."
+                  errorMessage="Enter the last four of your SSN."
+                  [validateControl]="registrationForm.get('lastFourOfSSN')">
+                </app-form-control-validation-indicator>
+              </div>
+            </div>
+          </div>
+          <div class="row row-cols-1">
+            <div class="col my-2">
+              <div class="form-floating position-relative w-100">
+                <input type="text"
+                       id="username"
+                       formControlName="username"
+                       class="form-control"
+                       placeholder="Username"/>
+                <label class="form-label"
+                       for="username">Username</label>
+                <app-form-control-validation-indicator
+                  defaultMessage="Enter your username."
+                  errorMessage="Username must be between 6 and 20 characters. It must only contain letters, numbers, underscores, and periods."
+                  [validateControl]="registrationForm.get('username')"></app-form-control-validation-indicator>
+              </div>
+            </div>
+          </div>
+          <div class="row row-cols-1 row-cols-md-2">
+            <div class="col my-2">
+              <div class="form-floating position-relative w-100">
+                <input type="password"
+                       id="password"
+                       formControlName="password"
+                       class="form-control"
+                       placeholder="Password"/>
+                <label class="form-label"
+                       for="password">Password</label>
+                <app-form-control-validation-indicator
+                  defaultMessage="Enter a password."
+                  errorMessage="Password must be at least 8 characters and include at least one uppercase letter, one lowercase letter, one number, and one symbol."
+                  [validateControl]="registrationForm.get('password')"></app-form-control-validation-indicator>
+              </div>
+            </div>
+            <div class="col my-2">
+              <div class="d-flex flex-row justify-content-around align-items-center ">
+                <div class="form-floating position-relative w-100">
+                  <input type="password"
+                         id="confirmPassword"
+                         formControlName="confirmPassword"
+                         class="form-control"
+                         placeholder="Confirm Password"/>
+                  <label class="form-label"
+                         for="confirmPassword">Confirm Password</label>
+                  <app-form-control-validation-indicator
+                    defaultMessage="Re-enter your password."
+                    errorMessage="The passwords you entered does not match."
+                    [validateControl]="registrationForm.get('confirmPassword')"></app-form-control-validation-indicator>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="errorMessage" class="row row-cols-1 animate__animated animate__headShake">
+            <div class="col w-100 text-center text-danger my-2">
+              {{errorMessage}}
+            </div>
+          </div>
+          <div class="row row-cols-2 mt-5">
+            <div class="col text-center my-2 order-1">
+              <button class="btn btn-lg btn-outline-primary rounded-pill"
+                      [disabled]="registrationForm.invalid || registrationLoading">
+                <span class="d-flex flex-row align-items-center">
+                  Register <span *ngIf="registrationLoading" class="ms-1 d-inline-block spinner-grow spinner-grow-sm"></span>
+                </span>
+              </button>
+            </div>
+            <div class="col text-center my-2 order-0">
+              <button type="button" class="btn btn-lg btn-outline-secondary rounded-pill"
+                      [disabled]="registrationLoading"
+                      (click)="prevTemplate()">
+                Back
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</ng-template>
+
+<!--Registration Success-->
+<ng-template #templateRegistrationSuccess>
+  <div class="registration-content animate__animated animate__fadeSlideInLeft">
+
+    <div class="container p-5">
+      <h1 class="display-3 my-3"><span class="text-primary">Success!</span></h1>
+      <div class="w-100 pb-3">
+        <hr class="line-divider"/>
+      </div>
+      <p class="text-muted fst-italic fs-2 mt-2">
+        Just one last thing...
+      </p>
+      <div class="text-center">
+        <app-animated-wallet [scale]="0.75"></app-animated-wallet>
+        <p class="mb-5 fs-4">
+          We've sent an email to <span class="text-primary fw-normal text-decoration-underline">{{email}}</span> to verify your registration.
+        </p>
+        <p class="my-5 fs-4">
+          Once you've done that...
+        </p>
+      </div>
+      <div class="d-flex justify-content-center">
+        <button type="button" class="btn btn-primary fs-3 rounded-pill py-2 px-4" routerLink="/login">Login</button>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-container #formContainer class="position-relative h-100" style="max-width: 100vw">
+</ng-container>

@@ -1,0 +1,24 @@
+<div class="min-vw-100 min-vh-100">
+  <div class="d-flex flex-row vh-100">
+    <div [ngClass]="{'leftPanelAnimation': !visited}" class="leftPanel user-select-none d-none d-lg-block position-relative">
+      <div class="airplane-bg-img min-vh-100 w-100 position-absolute top-0 start-0">
+      </div>
+      <div class="d-flex flex-column justify-content-center align-items-center vh-100 w-100 position-absolute top-0 start-0">
+        <div class="my-2 mx-auto" [ngClass]="{'animate__animated animate__fadeIn': !visited}">
+          <div class="logo-title">
+            <app-logo [animate]="!visited"></app-logo>
+          </div>
+          <div class="logo-subtitle text-center fs-5 text-light mt-3" [ngClass]="{'animate__animated animate__delay-1s animate__fadeIn': !visited}">
+            <div class="d-inline-block me-2" [ngClass]="{'animate__animated animate__fadeIn animate__delay-1s': !visited}">Wherever you go.</div>
+            <div class="d-inline-block" [ngClass]="{'animate__animated animate__fadeIn animate__delay-2s': !visited}">Bring <span class="text-primary fw-bold">your bank</span> along.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="rightPanel" [ngClass]="{'rightPanelAnimation': !visited}">
+      <div [ngClass]="{'animate__animated animate__fadeIn animate__delay-3-5s animate__faster': !visited}">
+        <app-registration-form></app-registration-form>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,16 @@
+<div class="w-100">
+  <form #searchForm="ngForm" (ngSubmit)="applySearch()">
+    <div class="input-group w-100">
+      <input name="searchTerm" [(ngModel)]="searchTerm" type="text" class="form-control" placeholder="Search"/>
+      <button type="submit" aria-label="Search" class="btn btn-outline-secondary">
+        <fa-icon icon="search"></fa-icon>
+      </button>
+    </div>
+  </form>
+  <div class="d-flex justify-content-start flex-row flex-fill search-term-area flex-wrap">
+    <div *ngFor="let term of this.searchTerms; let i = index"
+         class="d-inline-flex justify-content-between align-items-center rounded bg-light border shadow-sm p-2 m-1">
+      <div class="me-2">{{term}}</div><button class="btn btn-sm btn-close" (click)="deleteSearchTerm(i)"></button>
+    </div>
+  </div>
+</div>

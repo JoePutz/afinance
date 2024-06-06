@@ -1,0 +1,160 @@
+<!-- Desktop version of transactions table -->
+<div class="d-md-block d-none">
+  <div class="container border rounded-3 p-3 shadow-sm mb-4 bg-white">
+    <div *ngIf="transactions; else loading">
+      <h1 class="h5 text-primary">{{viewTitle}}</h1>
+      <hr class="line-divider"/>
+      <div [ngTemplateOutlet]="tableMenu"></div>
+      <div class="table-responsive">
+        <table class="table table-striped table-hover">
+          <thead>
+          <tr>
+            <th>
+              <app-sort-toggle
+                name="Date"
+                sortValue="date"
+                (applySort)="applySort($event)"
+              ></app-sort-toggle>
+            </th>
+            <th *ngIf="mode==='MEMBER'">Account</th>
+            <th>Description</th>
+            <th>
+              <app-sort-toggle
+                name="Amount"
+                sortValue="amount"
+                (applySort)="applySort($event)"
+                ></app-sort-toggle>
+            </th>
+            <th>Balance</th>
+            <th>Status</th>
+            <th class="text-center">
+              <fa-icon icon="ellipsis-h"></fa-icon>
+            </th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let transaction of transactions">
+            <td>{{transaction.date | date: 'MM/dd/yyyy'}}</td>
+            <td *ngIf="mode==='MEMBER'">{{transaction.accountNumber.substr(transaction.accountNumber.length - 7)}}</td>
+            <td>{{transaction | transactionDescription}}</td>
+            <td [ngClass]="{'text-danger': isDecreasing(transaction)}">{{transaction | transactionAmount}}</td>
+            <td>{{transaction.postedBalance / 100 | currency}}</td>
+            <td [ngClass]="{
+              'text-success': transaction.status === 0,
+              'text-danger': transaction.status === 1,
+              'text-muted': transaction.status === 2
+              }">{{transaction | transactionEnum: 'status'}}</td>
+            <td>
+              <button type="button" class="btn btn-link btn-sm" (click)="open(content)">Details</button>
+              <ng-template #content let-modal>
+                <div class="modal-header">
+                  <h4 class="modal-title" id="modal-title">Transaction Details</h4>
+                  <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+                </div>
+                <div class="modal-body">
+                  <table class="table table-responsive table-borderless">
+                    <tbody>
+                    <tr>
+                      <th>Date: </th>
+                      <td>{{transaction.date | date: 'MM/dd/yyyy hh:mm a'}}</td>
+                    </tr>
+                    <tr>
+                      <th>Type: </th>
+                      <td>
+                        <span class="text-info">{{transaction | transactionEnum: 'type'}}</span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>Amount: </th>
+                      <td [ngClass]="{'text-danger': isDecreasing(transaction)}">{{transaction | transactionAmount}}</td>
+                    </tr>
+                    <tr>
+                      <th>Status: </th>
+                      <td [ngClass]="{
+              'text-success': transaction.status === 0,
+              'text-danger': transaction.status === 1,
+              'text-muted': transaction.status === 2
+              }">{{transaction | transactionEnum: 'status'}}</td>
+                    </tr>
+                    <tr>
+                      <th>Account: </th>
+                      <td>{{transaction.accountNumber}}</td>
+                    </tr>
+                    <tr *ngIf="transaction.merchant">
+                      <th>Merchant: </th>
+                      <td>{{transaction.merchant.name}} <span class="text-muted fst-italic">({{transaction.merchant.code}})</span></td>
+                    </tr>
+                    <tr>
+                      <th>Description: </th>
+                      <td>{{transaction | transactionDescription}}</td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="modal-footer justify-content-center">
+                  <button type="button" class="btn btn-outline-dark" aria-label="Close" (click)="modal.dismiss()">
+                    Close
+                  </button>
+                </div>
+              </ng-template>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <div [ngTemplateOutlet]="paginationBar"></div>
+    </div>
+  </div>
+</div>
+
+<div class="d-block d-md-none">
+  <div class="container border rounded-3 p-3 shadow-sm mb-4 bg-white">
+    <div *ngIf="transactions; else loading">
+      <h1 class="h5 text-primary">{{viewTitle}}</h1>
+      <hr class="line-divider"/>
+      <div [ngTemplateOutlet]="tableMenu"></div>
+      <app-transactions-table [transactions]="transactions"></app-transactions-table>
+      <div [ngTemplateOutlet]="paginationBar"></div>
+    </div>
+  </div>
+</div>
+
+<ng-template #paginationBar>
+  <div class="d-flex justify-content-between w-100 align-items-center mt-1">
+    <span class="text-muted">Page {{currentPage}} of {{totalPages}}</span>
+    <div>
+      <select class="form-select form-select-sm" [(ngModel)]="pageSize" (ngModelChange)="loadPage(currentPage)">
+        <option [ngValue]="5">Show 5</option>
+        <option [ngValue]="10">Show 10</option>
+        <option [ngValue]="20">Show 20</option>
+      </select>
+    </div>
+  </div>
+  <div class="d-flex justify-content-center align-items-center mt-2">
+    <ngb-pagination [pageSize]="pageSize"
+                    [maxSize]="maxPaginationSize"
+                    [collectionSize]="totalElements"
+                    (pageChange)="loadPage($event)"></ngb-pagination>
+  </div>
+</ng-template>
+
+<ng-template #loading>
+  <div class="text-center text-primary my-5">
+    <div class="spinner-border"></div>
+  </div>
+</ng-template>
+
+<ng-template #tableMenu>
+  <div class="d-flex justify-content-end my-2">
+    <div class="mx-2 flex-grow-1">
+      <app-search-transactions (search)="applySearch($event)"></app-search-transactions>
+    </div>
+    <div class="mx-2">
+      <button class="btn btn-outline-secondary rounded-3" ngbTooltip="Refresh" placement="bottom" (click)="loadPage(currentPage)">
+        <fa-icon icon="sync-alt"></fa-icon>
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<app-breakpoint-detector></app-breakpoint-detector>

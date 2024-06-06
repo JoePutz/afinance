@@ -1,0 +1,49 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./src",
+    "paths": {
+      "@src/*": [
+        "./*"
+      ],
+      "@components/*": [
+        "./components/*"
+      ],
+      "@config/*": [
+        "./config/*"
+      ],
+      "@images/*": [
+        "./assets/images/*"
+      ],
+      "@test-utils": [
+        "./utils/test.utils"
+      ],
+      "@interfaces": [
+        "./interfaces"
+      ],
+      "@props": [
+        "./props"
+      ],
+      "@pages/*": [
+        "./pages/*"
+      ],
+      "@data/*": [
+        "./data/*"
+      ],
+      "@styles/*": [
+        "./styles/*"
+      ],
+      "@schemas": [
+        "./schemas"
+      ],
+      "@utils/*": [
+        "./utils/*"
+      ],
+      "@api/*": [
+        "./api/*"
+      ],
+      "aline-signup-form":[
+        "./modules/SignUpFormComponents"
+      ]
+    }
+  }
+}

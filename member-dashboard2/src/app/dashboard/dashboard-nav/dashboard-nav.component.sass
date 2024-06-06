@@ -1,0 +1,26 @@
+@import "~src/styles"
+
+.nav-link
+  position: relative
+  color: $light
+  transition: color 0.3s ease
+  &:focus
+    color: $primary
+  &::after
+    position: absolute
+    bottom: 0
+    left: 0
+    right: 0
+    background-color: $primary
+    color: transparent
+    content: '.'
+    height: 5px
+    width: 0
+    margin: auto
+    transition: width 0.3s ease
+
+.nav-active
+  position: relative
+  color: $primary
+  &::after
+    width: 100%

@@ -1,0 +1,6 @@
+<div style="padding-block: 5rem" class="bg-light min-vh-100">
+  <div [@routeAnimations]="prepareRoutes(outlet)" class="position-relative mx-auto">
+    <router-outlet #outlet="outlet"></router-outlet>
+  </div>
+</div>
+<app-dashboard-nav></app-dashboard-nav>
