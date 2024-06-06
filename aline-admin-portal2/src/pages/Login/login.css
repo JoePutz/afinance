@@ -1,0 +1,26 @@
+.login{
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.login:before{
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(-45deg, rgba(255, 255, 255, 0.96), rgba(8, 69, 255, 0.53));
+    transform: scaleX(1.5);
+}
+
+.loginCard{
+    position: relative;
+    z-index: 100;
+    width: 25rem;
+}

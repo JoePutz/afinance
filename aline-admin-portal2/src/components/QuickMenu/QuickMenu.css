@@ -1,0 +1,22 @@
+.quick-menu {
+  position: fixed;
+  margin-top: auto;
+  bottom: 1rem;
+  right: 1rem;
+}
+
+.quick-menu .quick-menu-items {
+  visibility: hidden;
+  margin-top: 5rem;
+  opacity: 0;
+  transition: 0.3s ease-in-out;
+  gap: 0.25rem;
+}
+.quick-menu .quick-menu-more:active, .quick-menu .quick-menu-more:focus + .quick-menu-items {
+  visibility: visible;
+  margin-top: 0.5rem;
+  opacity: 1;
+  transition-delay: 0.3s;
+}
+
+/*# sourceMappingURL=QuickMenu.css.map */
