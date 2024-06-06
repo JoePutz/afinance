@@ -48,4 +48,4 @@ local.properties
 .loadpath
 .recommenders
 
-.env
+# .env

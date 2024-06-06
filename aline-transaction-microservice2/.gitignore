@@ -49,4 +49,4 @@ local.properties
 
 start_microservice.sh
 
-.env
+# .env
