@@ -23,24 +23,30 @@ spec:
         - containerPort: 3007
         env:
         - name: REACT_APP_API
-          value: http://a4d98e47c12f34885ae3b657f7859e5c-1182517644.us-east-1.elb.amazonaws.com:8080
+          valueForm:
+            configMapKeyRef:
+              name: aline-config
+              key: GATEWAY_URL
         - name: REACT_APP_MEMBER_DASHBOARD_URL
-          value: http://a161cbb6f97da493a9a40b4f5310ec8a-1862234697.us-east-1.elb.amazonaws.com:4200
+          valueForm:
+            configMapKeyRef:
+              name: aline-config
+              key: PORTAL_DASHBOARD
 
----
-# portal-landing-service.yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: landing-lb
-spec:
-  type: LoadBalancer
-  selector:
-    app: landing-portal
-  ports:
-    - protocol: TCP
-      port: 3007
-      targetPort: 80
+# ---
+# # portal-landing-service.yaml
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: landing-lb
+# spec:
+#   type: LoadBalancer
+#   selector:
+#     app: landing-portal
+#   ports:
+#     - protocol: TCP
+#       port: 3007
+#       targetPort: 80
 
 
 

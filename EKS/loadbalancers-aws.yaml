@@ -1,0 +1,58 @@
+# portal-dashboard-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: member-dashboard
+spec:
+  type: LoadBalancer
+  selector:
+    app: member-portal
+  ports:
+    - protocol: TCP
+      port: 4200
+      targetPort: 80
+
+---
+# portal-landing-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: landing-portal
+spec:
+  type: LoadBalancer
+  selector:
+    app: landing-portal
+  ports:
+    - protocol: TCP
+      port: 3007
+      targetPort: 80
+
+---
+# portal-admin-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: admin-portal
+spec:
+  type: LoadBalancer
+  selector:
+    app: admin-portal
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 80
+
+---
+# aline-gateway-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: aline-gateway
+spec:
+  type: LoadBalancer
+  selector:
+    app: aline-gateway
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080

@@ -26,27 +26,36 @@ spec:
         - name: APP_SERVICE_HOST
           value: gateway-svc.default.svc.cluster.local
         - name: PORTAL_LANDING
-          value: http://a29e50cc6dd1245a5939f521a9c5bb75-42843292.us-east-1.elb.amazonaws.com:3007
+          valueForm:
+            configMapKeyRef:
+              name: aline-config
+              key: PORTAL_LANDING
         - name: PORTAL_DASHBOARD
-          value: http://a161cbb6f97da493a9a40b4f5310ec8a-1862234697.us-east-1.elb.amazonaws.com:4200
+          valueForm:
+            configMapKeyRef:
+              name: aline-config
+              key: PORTAL_DASHBOARD
         - name: PORTAL_ADMIN
-          value: http://a8f06728fe2d3478d9775a2f1a94f2cd-1672601712.us-east-1.elb.amazonaws.com:3000
+          valueForm:
+            configMapKeyRef:
+              name: aline-config
+              key: PORTAL_ADMIN
         - name: JWT_SECRET_KEY
           value: x2wOrQfY6RQIfE1ETwZtpflC19KyfN9N
         - name: ENCRYPT_SECRET_KEY
           value: mf5ZIxRkF6IJj1AIVreII2ZQ4uhtJ8zC
 
----
-# aline-gateway-service.yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: gateway-lb
-spec:
-  type: LoadBalancer
-  selector:
-    app: aline-gateway
-  ports:
-    - protocol: TCP
-      port: 8080
-      targetPort: 8080
+# ---
+# # aline-gateway-service.yaml
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: gateway-lb
+# spec:
+#   type: LoadBalancer
+#   selector:
+#     app: aline-gateway
+#   ports:
+#     - protocol: TCP
+#       port: 8080
+#       targetPort: 8080

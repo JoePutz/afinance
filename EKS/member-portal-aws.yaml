@@ -20,22 +20,28 @@ spec:
         - containerPort: 4200
         env:
         - name: api
-          value: http://a4d98e47c12f34885ae3b657f7859e5c-1182517644.us-east-1.elb.amazonaws.com:8080/api
+          valueForm:
+            configMapKeyRef:
+              name: aline-config
+              key: API
         - name: landingPortal
-          value: http://a29e50cc6dd1245a5939f521a9c5bb75-42843292.us-east-1.elb.amazonaws.com:3007
+          valueForm:
+            configMapKeyRef:
+              name: aline-config
+              key: PORTAL_LANDING
 
 
----
-# portal-dashboard-service.yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: member-lb
-spec:
-  type: LoadBalancer
-  selector:
-    app: member-portal
-  ports:
-    - protocol: TCP
-      port: 4200
-      targetPort: 80
+# ---
+# # portal-dashboard-service.yaml
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: member-lb
+# spec:
+#   type: LoadBalancer
+#   selector:
+#     app: member-portal
+#   ports:
+#     - protocol: TCP
+#       port: 4200
+#       targetPort: 80
