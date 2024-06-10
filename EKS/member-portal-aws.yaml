@@ -15,7 +15,8 @@ spec:
     spec:
       containers:
       - name: member-portal
-        image: 767397723308.dkr.ecr.us-east-1.amazonaws.com/aline-financial-jp:member-demo-v1
+        image: 767397723308.dkr.ecr.us-east-1.amazonaws.com/aline-financial-jp:member-dashboard-latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 4200
         env:

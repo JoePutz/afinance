@@ -18,7 +18,8 @@ spec:
     spec:
       containers:
       - name: admin-portal
-        image: 767397723308.dkr.ecr.us-east-1.amazonaws.com/aline-financial-jp:admin-v10
+        image: 767397723308.dkr.ecr.us-east-1.amazonaws.com/aline-financial-jp:admin-portal-latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 3000
         env:
