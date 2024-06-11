@@ -24,14 +24,14 @@ spec:
         - containerPort: 3000
         env:
         - name: REACT_APP_API_BASEURL
-          valueForm:
+          valueFrom:
             configMapKeyRef:
               name: aline-config
               key: GATEWAY_URL
         - name: REACT_APP_TOKEN_NAME
           value: x2wOrQfY6RQIfE1ETwZtpflC19KyfN9N
         - name: REACT_APP_BROKER_URL
-          valueForm:
+          valueFrom:
             configMapKeyRef:
               name: aline-config
               key: PORTAL_LANDING

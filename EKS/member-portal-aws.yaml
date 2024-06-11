@@ -21,12 +21,12 @@ spec:
         - containerPort: 4200
         env:
         - name: api
-          valueForm:
+          valueFrom:
             configMapKeyRef:
               name: aline-config
               key: API
         - name: landingPortal
-          valueForm:
+          valueFrom:
             configMapKeyRef:
               name: aline-config
               key: PORTAL_LANDING

@@ -27,17 +27,17 @@ spec:
         - name: APP_SERVICE_HOST
           value: gateway-svc.default.svc.cluster.local
         - name: PORTAL_LANDING
-          valueForm:
+          valueFrom:
             configMapKeyRef:
               name: aline-config
               key: PORTAL_LANDING
         - name: PORTAL_DASHBOARD
-          valueForm:
+          valueFrom:
             configMapKeyRef:
               name: aline-config
               key: PORTAL_DASHBOARD
         - name: PORTAL_ADMIN
-          valueForm:
+          valueFrom:
             configMapKeyRef:
               name: aline-config
               key: PORTAL_ADMIN

@@ -24,12 +24,12 @@ spec:
         - containerPort: 3007
         env:
         - name: REACT_APP_API
-          valueForm:
+          valueFrom:
             configMapKeyRef:
               name: aline-config
               key: GATEWAY_URL
         - name: REACT_APP_MEMBER_DASHBOARD_URL
-          valueForm:
+          valueFrom:
             configMapKeyRef:
               name: aline-config
               key: PORTAL_DASHBOARD
