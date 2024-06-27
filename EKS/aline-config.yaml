@@ -8,29 +8,3 @@ data:
   PORTAL_ADMIN: "http://aa165e51750be4135adf1716f6a271dc-1269160691.us-east-1.elb.amazonaws.com:3000"
   GATEWAY_URL: "http://a4d98e47c12f34885ae3b657f7859e5c-1182517644.us-east-1.elb.amazonaws.com:8080"
   API: "http://a4d98e47c12f34885ae3b657f7859e5c-1182517644.us-east-1.elb.amazonaws.com:8080/api"
-
-
-
-
-# REACT_APP_MEMBER_DASHBOARD_URL=http://a161cbb6f97da493a9a40b4f5310ec8a-1862234697.us-east-1.elb.amazonaws.com:4200
-# REACT_APP_API=http://a4d98e47c12f34885ae3b657f7859e5c-1182517644.us-east-1.elb.amazonaws.com:8080
-# PORT=3007
-# EXTEND_ESLINT= true
-
-# REACT_APP_API_BASEURL= http://a4d98e47c12f34885ae3b657f7859e5c-1182517644.us-east-1.elb.amazonaws.com:8080
-
-# REACT_APP_TOKEN_NAME= x2wOrQfY6RQIfE1ETwZtpflC19KyfN9N
-
-# REACT_APP_BROKER_URL= http://a29e50cc6dd1245a5939f521a9c5bb75-42843292.us-east-1.elb.amazonaws.com:3007
-
-# APP_PORT = 8080
-# PORTAL_LANDING = http://a07dff4af00f9458b93c1f384f619955-953394416.us-east-1.elb.amazonaws.com:3007
-# #landing should be the container name for landing portal
-# PORTAL_DASHBOARD = http://a7d5cb83d24f2440b9ab4e679955bf0e-885102123.us-east-1.elb.amazonaws.com:4200
-# #member should be the container name for member portal
-# PORTAL_ADMIN = http://aa165e51750be4135adf1716f6a271dc-1269160691.us-east-1.elb.amazonaws.com:3000
-# #admin should be the container name for admin portal
-# APP_SERVICE_HOST = gateway-svc.default.svc.cluster.local
-#     api: 'http://a4d98e47c12f34885ae3b657f7859e5c-1182517644.us-east-1.elb.amazonaws.com:8080/api',
-#     landingPortal: 'http://a29e50cc6dd1245a5939f521a9c5bb75-42843292.us-east-1.elb.amazonaws.com:3007'
-

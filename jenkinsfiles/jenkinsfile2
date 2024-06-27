@@ -1,0 +1,306 @@
+// Dear Srinivas Kanumuri, please accept my sincere apologies all my pipeline work up until now was all done exclusively within Jenkins, I did not think about how one would check my work.
+// This is the image to EKS pipeline
+
+pipeline {
+    agent any
+ 
+    environment {
+        AWS_ACCOUNT_ID="767397723308"
+        AWS_DEFAULT_REGION="us-east-1"
+        IMAGE_REPO_NAME= "aline-financial-jp"
+        IMAGE_TAG="latest"
+        REPOSITORY_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}"
+        KUBECONFIG = '/var/lib/jenkins/.kube/config'
+        AWS_CRED = credentials('08833f46-be95-4d5f-9355-765750cd1d98')
+    }
+ 
+    stages {
+        stage('Clone Repository') {
+            steps {
+                script {
+                    // Output current environment variables for debugging
+                    sh 'env | sort'
+ 
+                    // Clone the repository
+                    git branch: "joe's-branch", credentialsId: 'gitlab-credentials', url: 'https://git1.smoothstack.com/cohorts/2024/2024-03-11_cloud/organizations/deployment-dragons/joseph-putz/aline-financial'
+
+                    // Check if git credentials are available
+                    sh 'echo "Git credentials are set."'
+                }
+            }
+        }
+ 
+        stage('Configure AWS CLI') {
+            steps {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: '08833f46-be95-4d5f-9355-765750cd1d98', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                    script {
+                        // Source AWS credentials from the EC2 instance's shared credentials file
+                        sh '''
+                            export AWS_SHARED_CREDENTIALS_FILE=/var/lib/jenkins/.aws/credentials
+                            export AWS_CONFIG_FILE=/var/lib/jenkins/.aws/config
+                            echo "AWS Shared Credentials File: $AWS_SHARED_CREDENTIALS_FILE"
+                            echo "AWS Config File: $AWS_CONFIG_FILE"
+ 
+                             aws eks update-kubeconfig --region us-east-1 --name aline-cluster-test-2-jp
+                        '''
+                    }
+                }
+            }
+        }
+        stage('Apply Loadbalancers and Services') {
+            steps {
+                dir('EKS') {
+                    script {
+                        sh '''
+                            kubectl version --client
+                            kubectl config current-context
+                            kubectl apply -f loadbalancers-aws.yaml
+                            kubectl apply -f aline-secret.yaml
+                            kubectl apply -f services-micro-aws.yaml
+                            kubectl apply -f gateway-scv.yaml
+                        '''
+                    }
+                }
+            }
+        }
+        
+        stage('Collect Loadbalancers') {
+            steps {
+                script {
+                    def services = ['aline-gateway', 'admin-portal', 'landing-portal', 'member-dashboard']
+                    def externalIps = [:] // Dictionary to store external IPs
+                    def maxRetries = 13 // Maximum number of retries
+                    def waitTime = 13 // Wait time between retries in seconds
+
+                    // Iterate through each service to get its external IP
+                    services.each { service ->
+                        def externalIp = ''
+                        def port = ''
+                        for (int i = 0; i < maxRetries; i++) {
+                            // Try to get the external IP
+                            externalIp = sh(script: "kubectl get service ${service} -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'", returnStdout: true).trim()
+                            if (externalIp) {
+                                break // Break the loop if the IP is found
+                            }
+                            echo "Waiting for external IP for service ${service}... (${i + 1}/${maxRetries})"
+                            sleep(waitTime) // Wait before retrying
+                        }
+                        if (!externalIp) {
+                            error "Failed to get external IP for service ${service} after ${maxRetries * waitTime} seconds."
+                        }
+
+                        // Get the port for the service
+                        port = sh(script: "kubectl get service ${service} -o jsonpath='{.spec.ports[0].port}'", returnStdout: true).trim()
+                        if (!port) {
+                            error "Failed to get port for service ${service}."
+                        }
+
+                        // Construct the final URL
+                        def serviceUrl = "http://${externalIp}:${port}"
+                        echo "${service} URL: ${serviceUrl}"
+                        externalIps[service] = serviceUrl // Store the URL in the dictionary
+                    }
+
+                    // Storing each external URL in a separate environment variable
+                    externalIps.each { service, url ->
+                        env."${service.toUpperCase().replace('-', '_')}_URL" = url
+                    }
+
+                    // Print the external URLs for each service
+                    echo "Gateway URL: ${env.ALINE_GATEWAY_URL}"
+                    echo "Admin Portal URL: ${env.ADMIN_PORTAL_URL}"
+                    echo "Landing Portal URL: ${env.LANDING_PORTAL_URL}"
+                    echo "Member Dashboard URL: ${env.MEMBER_DASHBOARD_URL}"
+                }
+                
+                // Save the load balancer environment variables to a file
+                sh '''
+                    echo "ALINE_GATEWAY_IP=${ALINE_GATEWAY_URL}" > env.txt
+                    echo "ADMIN_PORTAL_IP=${ADMIN_PORTAL_URL}" >> env.txt
+                    echo "LANDING_PORTAL_IP=${LANDING_PORTAL_URL}" >> env.txt
+                    echo "MEMBER_DASHBOARD_IP=${MEMBER_DASHBOARD_URL}" >> env.txt
+                '''
+
+                // Print the environment variables file
+                sh '''
+                    cat env.txt
+                '''
+                
+                script {
+                    def envMap = readProperties file: 'env.txt'
+                    env.ENV_MAP = envMap
+                    env.landingPortalUrl = envMap['LANDING_PORTAL_IP']
+                    env.gatewayUrl = envMap['ALINE_GATEWAY_IP']
+                    env.memberDashboardUrl = envMap['MEMBER_DASHBOARD_IP']
+                    env.adminPortalUrl = envMap['ADMIN_PORTAL_IP']
+                    env.appServiceHost = 'http://app-service-host-aws.default.svc.cluster.local'
+                    
+                    // Print the variables
+                    envMap.each { key, value ->
+                        echo "${key}: ${value}"
+                    }
+                }
+            }
+        }
+        
+        stage('Create ConfigMap') {
+            steps {
+                dir('EKS') {
+                    script {
+                        def alineConfig = readYaml file: 'aline-config.yaml'
+                        def yamlContent = writeYaml returnText: true, data: alineConfig
+                        echo "Contents of aline-config.yaml:\n${yamlContent}"
+                        alineConfig.data.PORTAL_LANDING = landingPortalUrl
+                        alineConfig.data.PORTAL_DASHBOARD = memberDashboardUrl
+                        alineConfig.data.PORTAL_ADMIN = adminPortalUrl
+                        alineConfig.data.GATEWAY_URL = gatewayUrl
+                        
+                        def filePath = 'updated-aline-config.yaml'
+                        
+                        if (fileExists(filePath)) {
+                            sh "rm ${filePath}"
+                        }
+                            
+                        // Write updated YAML to file
+                        writeYaml file: 'updated-aline-config.yaml', data: alineConfig
+                        
+                        // Apply the updated secrets
+                        sh 'kubectl apply -f updated-aline-config.yaml'
+                        def deploymentExists = sh(script: "kubectl get deployment aline-gateway", returnStatus: true) == 0
+                        if (deploymentExists) {
+                            sh 'kubectl delete deployment aline-gateway'
+                        } else {
+                            echo "Deployment aline-gateway does not exist, no action needed."
+                        }
+                        sh 'kubectl apply -f aline-gateway-aws.yaml'
+                    }
+                }
+            }
+        }
+        
+        stage('Portal Setup') {
+            steps {
+                dir('aline-admin-portal2') {
+                    sh """
+                        docker build --build-arg APP_BROKER_URL=${landingPortalUrl} \
+                                     --build-arg APP_API_URL=${gatewayUrl} \
+                                     -t admin-portal:latest .
+                    """
+                }
+                dir('member-dashboard2') {
+                    script {
+                        def envFilePath = 'src/environments/environment.prod.ts'
+                        
+                        // Delete the original environment.prod.ts file
+                        sh "rm -f ${envFilePath}"
+                        
+                        // Create the new environment.prod.ts file with updated content
+                        def envFileContent = """
+                            export const environment = {
+                              production: true,
+                              application: {
+                                api: '${gatewayUrl}/api',
+                                landingPortal: '${landingPortalUrl}'
+                              }
+                            };
+                        """
+                        writeFile file: envFilePath, text: envFileContent
+                        
+                        // Display the file contents
+                        sh "cat ${envFilePath}"
+                    }
+                    
+                    // Build the Docker image
+                    sh """
+                        docker build -t member-dashboard:latest .
+                    """
+                }
+                    
+                dir('aline-landing-portal2'){
+                    sh """
+                        docker build --build-arg APP_MEMBER_DASHBOARD_URL=${memberDashboardUrl} \
+                                     --build-arg APP_API_URL=${gatewayUrl} \
+                                     -t landing-portal:latest .
+                    """
+                }
+            }
+            
+        }
+        
+        stage('Remove earlier images from ECR') {
+            steps {
+                sh """
+                    aws ecr batch-delete-image --repository-name aline-financial-jp --image-ids imageTag=admin-portal-latest || true
+                    aws ecr batch-delete-image --repository-name aline-financial-jp --image-ids imageTag=member-dashboard-latest || true
+                    aws ecr batch-delete-image --repository-name aline-financial-jp --image-ids imageTag=landing-portal-latest || true
+                """
+                
+                sh "sleep 31"
+                
+            }
+        }
+        
+        stage('Build and Push Images') {
+            steps {
+                script {
+                    def microservices = [
+                        [name: 'account-micro-jenkins', dir: 'aline-account-microservice2'],
+                        [name: 'bank-micro-jenkins', dir: 'aline-bank-microservice2'],
+                        [name: 'aline-gateway-jenkins', dir: 'aline-gateway2'],
+                        [name: 'trans-micro-jenkins', dir: 'aline-transaction-microservice2'],
+                        [name: 'underwriter-micro-jenkins', dir: 'aline-underwriter-microservice2'],
+                        [name: 'user-micro-jenkins', dir: 'aline-user-microservice2'],
+                    ]
+                    microservices.each { service ->
+                        dir(service.dir) {
+                            dockerImage = docker.build "${service.name}:${IMAGE_TAG}"
+                            sh "docker tag ${service.name}:latest ${REPOSITORY_URI}:${service.name}-${IMAGE_TAG}"
+                            sh "docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${service.name}-${IMAGE_TAG}"
+                        }
+                    }
+                    
+                    sh '''
+                        docker tag admin-portal:latest ${REPOSITORY_URI}:admin-portal-${IMAGE_TAG}
+                        docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:admin-portal-${IMAGE_TAG}
+                        docker tag member-dashboard:latest ${REPOSITORY_URI}:member-dashboard-${IMAGE_TAG}
+                        docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:member-dashboard-${IMAGE_TAG}
+                        docker tag landing-portal:latest ${REPOSITORY_URI}:landing-portal-${IMAGE_TAG}
+                        docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:landing-portal-${IMAGE_TAG}
+                    '''
+                }   
+            }
+        }
+        stage('Deploy Yamls') {
+            steps {
+                dir('EKS') {
+                    sh '''
+                        kubectl apply -f user-micro-aws.yaml
+                        kubectl apply -f underwriter-micro-aws.yaml
+                        kubectl apply -f bank-micro-aws.yaml
+                        kubectl apply -f account-micro-aws.yaml
+                        kubectl apply -f transaction-micro-aws.yaml
+                        kubectl apply -f admin-portal-aws.yaml
+                        kubectl apply -f landing-portal-aws.yaml
+                        kubectl apply -f member-portal-aws.yaml
+                    '''
+                }
+            }
+        }
+    }
+ 
+    post {
+        succes {
+            emailext body: 'Good job', subject: '', to: 'joseph.putz@smoothstack.com'
+        }
+        failure {
+            emailext attachLog: true, body: '', subject: '', to: 'joseph.putz@smoothstack.com'
+        }
+        always {
+            script {
+                // Output final status and clean workspace
+                sh 'echo "Pipeline completed."'
+                cleanWs() // Clean workspace after pipeline execution
+            }
+        }
+    }
+}

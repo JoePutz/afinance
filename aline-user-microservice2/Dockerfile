@@ -21,4 +21,3 @@ COPY user-microservice/src/main/resources/.env ./
 EXPOSE 8070
 
 CMD [ "java", "-jar", "user-microservice-0.1.0.jar" ]
-
