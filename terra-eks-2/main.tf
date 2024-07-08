@@ -33,7 +33,7 @@ data "aws_subnets" "default" {
 #Set EKS cluster name
 locals {
   cluster_name = "aline-cluster-test-2-jp"
-  unique_id    = format("%s-%s", var.iam_role_base_name, formatdate("YYYYMMDDHHmmss", timestamp()))
+  # unique_id    = format("%s-%s", var.iam_role_base_name, formatdate("YYYYMMDDHHmmss", timestamp()))
 }
 
 #Set EKS
@@ -120,11 +120,11 @@ resource "aws_iam_role_policy_attachment" "eks_cluster_role_EKSVPCResouceControl
     role = aws_iam_role.aline-cluster-role-jp.name
 }
 
-variable "iam_role_base_name" {
-  description = "Base name of the IAM role"
-  type        = string
-  default     = "aline-cluster-role-jp"
-}
+# variable "iam_role_base_name" {
+#   description = "Base name of the IAM role"
+#   type        = string
+#   default     = "aline-cluster-role-jp"
+# }
 
 #Create ec2 IAM role and attach policies
 resource "aws_iam_role" "eks_nodegroup_role_jp" {
@@ -188,6 +188,7 @@ resource "aws_security_group" "eks_nodegroup_sg_jp" {
 #Module for database
 module "db" {
   source = "terraform-aws-modules/rds/aws"
+  version = "6.7.0"
 
   identifier = "alinedb"
 
