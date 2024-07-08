@@ -3,12 +3,6 @@
 
 terraform {
 
-  # cloud {
-  #   workspaces {
-  #     name = "learn-terraform-eks"
-  #   }
-  # }
-
   backend "s3" {
     bucket = "s3-bucket-jp"
     dynamodb_table = "terraform_eks_state_lock_jp"
