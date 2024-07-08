@@ -9,6 +9,14 @@ terraform {
   #   }
   # }
 
+  backend "s3" {
+    bucket = "s3-bucket-jp"
+    dynamodb_table = "terraform_eks_state_lock_jp"
+    key = "terraform_eks_state/terraform.tfstate"
+    region = "us-east-1"
+    encrypt = true
+  }
+
   required_providers {
     aws = {
       source  = "hashicorp/aws"
