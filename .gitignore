@@ -4,3 +4,5 @@
 /terra-ecs-2
 /terraform-eks
 *.pem
+/test
+/example
