@@ -20,3 +20,14 @@ output "cluster_name" {
   description = "Kubernetes Cluster Name"
   value       = module.eks.cluster_name
 }
+
+# output "node_group_names" {
+#   value = module.eks.eks_managed_node_groups["one"]["node_group_id"]
+# }
+
+output "node_group_names" {
+  value = {
+    for key, node_group in module.eks.eks_managed_node_groups :
+    key => replace(node_group.node_group_id, "${local.cluster_name}:", "")
+  }
+}

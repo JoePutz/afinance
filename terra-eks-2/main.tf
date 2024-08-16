@@ -237,3 +237,173 @@ module "rds_security_group" {
     },
   ]
 }
+
+data "aws_secretsmanager_secret" "notification_email" {
+  name = "notification_email"
+}
+
+data "aws_secretsmanager_secret_version" "notification_email" {
+  secret_id = data.aws_secretsmanager_secret.notification_email.id
+}
+
+locals {
+  notification_email = jsondecode(data.aws_secretsmanager_secret_version.notification_email.secret_string).email
+}
+
+# Create CloudWatch Dashboard
+resource "aws_cloudwatch_dashboard" "eks_cluster_dashboard_jp" {
+  dashboard_name = "EKSClusterDashboardJP"
+  
+  dashboard_body = jsonencode({
+    widgets = [
+      {
+        type = "metric",
+        x = 12,
+        y = 12,
+        width = 12,
+        height = 6,
+        properties = {
+          metrics = [
+            [ "AWS/Logs", "IncomingLogEvents", "LogGroupName", "/aws/eks/${local.cluster_name}/cluster" ],
+            [ ".", "IncomingBytes", ".", "/aws/eks/${local.cluster_name}/cluster" ],
+          ],
+          view = "timeSeries",
+          stacked = false,
+          region = var.region,
+          title = "EKS Incoming Log Events",
+        }
+      },
+      {
+        type = "metric",
+        x = 0,
+        y = 6,
+        width = 12,
+        height = 6,
+        properties = {
+          metrics = [
+            [ "AWS/RDS", "CPUUtilization", "DBInstanceIdentifier", module.db.db_instance_identifier ],
+            [ ".", "FreeStorageSpace", ".", module.db.db_instance_identifier ],
+          ],
+          view = "timeSeries",
+          stacked = false,
+          region = var.region,
+          title = "RDS Metrics",
+        }
+      },
+      {
+        "type": "metric",
+        "x": 0,
+        "y": 0,
+        "width": 12,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [ "ContainerInsights", "node_cpu_utilization", "ClusterName", local.cluster_name ],
+            [ ".", "node_memory_utilization", ".", local.cluster_name ]
+          ],
+          "view": "timeSeries",
+          "stacked": false,
+          "region": var.region,
+          "title": "Node CPU & Memory Utilization"
+        }
+      },
+      {
+        "type": "metric",
+        "x": 0,
+        "y": 12,
+        "width": 12,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [ "ContainerInsights", "node_filesystem_utilization", "ClusterName", local.cluster_name ]
+          ],
+          "view": "timeSeries",
+          "stacked": false,
+          "region": var.region,
+          "title": "Node Disk Space Utilization"
+        }
+      },
+      {
+        "type": "metric",
+        "x": 12,
+        "y": 0,
+        "width": 12,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [ "AWS/RDS", "DatabaseConnections", "DBInstanceIdentifier", module.db.db_instance_identifier ]
+          ],
+          "view": "timeSeries",
+          "stacked": false,
+          "region": var.region,
+          "title": "Database Connections"
+        }
+      },
+      {
+        "type": "metric",
+        "x": 12,
+        "y": 6,
+        "width": 12,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [ "AWS/RDS", "ReadLatency", "DBInstanceIdentifier", module.db.db_instance_identifier ],
+            [ ".", "WriteLatency", ".", module.db.db_instance_identifier ]
+          ],
+          "view": "timeSeries",
+          "stacked": false,
+          "region": var.region,
+          "title": "Read/Write Latency"
+        }
+      },
+      {
+        "type": "metric",
+        "x": 0,
+        "y": 24,
+        "width": 12,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [ "AWS/ApplicationELB", "RequestCount", "LoadBalancer", "<load_balancer_name>" ]
+          ],
+          "view": "timeSeries",
+          "stacked": false,
+          "region": var.region,
+          "title": "ELB Request Count"
+        }
+      },
+    ]
+  })
+}
+
+resource "aws_cloudwatch_metric_alarm" "rds_low_memory_alarm" {
+  alarm_name          = "RDSLowMemoryAlarm"
+  comparison_operator = "LessThanOrEqualToThreshold"
+  evaluation_periods  = 1
+  metric_name         = "FreeableMemory"
+  namespace           = "AWS/RDS"
+  period              = 300  # 5 minutes
+  statistic           = "Average"
+  threshold           = 1073741824  # 1 GB in bytes
+  alarm_description   = "Alarm when RDS instance freeable memory is below 1GB (approx. 10% of total memory for many instance types)."
+  actions_enabled     = true
+  alarm_actions       = [aws_sns_topic.rds_alarm_topic.arn]
+  ok_actions          = [aws_sns_topic.rds_alarm_topic.arn]
+  insufficient_data_actions = []
+
+  dimensions = {
+    DBInstanceIdentifier = module.db.db_instance_identifier
+  }
+
+  treat_missing_data = "breaching"
+}
+
+resource "aws_sns_topic" "rds_alarm_topic" {
+  name = "rds_alarm_topic"
+}
+
+resource "aws_sns_topic_subscription" "rds_alarm_topic_subscription" {
+  topic_arn = aws_sns_topic.rds_alarm_topic.arn
+  protocol  = "email"
+  endpoint  = local.notification_email
+}

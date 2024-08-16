@@ -1,0 +1,7 @@
+.terraform/
+.terraform.lock.hcl
+.terraform.tfstate.lock.info
+terraform_outputs.json
+terraform.tfstate
+terraform.tfstate.backup
+install2.yaml

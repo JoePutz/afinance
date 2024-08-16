@@ -2,23 +2,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: landing-portal
+  name: landing-portal-green
   labels:
-    app: landing-portal
+    app: landing-portal-green
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: landing-portal
+      app: landing-portal-green
   template:
     metadata:
       labels:
-        app: landing-portal
+        app: landing-portal-green
         target: portals
     spec:
       containers:
-      - name: landing-portal
-        image: 767397723308.dkr.ecr.us-east-1.amazonaws.com/aline-financial-jp:landing-portal-demo-v1
+      - name: landing-portal-green
+        image: 767397723308.dkr.ecr.us-east-1.amazonaws.com/aline-financial-jp:aline-landing-portal-green-latest
         imagePullPolicy: Always
         ports:
         - containerPort: 3007
@@ -43,7 +43,7 @@ metadata:
 spec:
   type: LoadBalancer
   selector:
-    app: landing-portal
+    app: landing-portal-green
   ports:
     - protocol: TCP
       port: 3007

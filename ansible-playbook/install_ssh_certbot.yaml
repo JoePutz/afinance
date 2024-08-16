@@ -1,0 +1,91 @@
+---
+- name: Install OpenSSH and Certbot
+  hosts: all
+  become: yes
+  tasks:
+    - name: Gather facts
+      setup:
+
+    - name: Read OS release information
+      command: cat /etc/os-release
+      register: os_release
+
+    - name: Parse OS release information
+      set_fact:
+        os_pretty_name: "{{ os_release.stdout_lines | select('match', '^PRETTY_NAME=') | first | regex_replace('^PRETTY_NAME=\"(.*)\"$', '\\1') }}"
+
+    - name: Install OpenSSH on Debian-based systems (Ubuntu)
+      apt:
+        name: openssh-server
+        state: present
+      when: "'Ubuntu' in os_pretty_name"
+
+    - name: Enable Universe repository on Ubuntu
+      apt_repository:
+        repo: "deb http://archive.ubuntu.com/ubuntu/ {{ ansible_facts['lsb']['codename'] }} universe"
+        state: present
+      when: "'Ubuntu' in os_pretty_name"
+
+    - name: Install Certbot on Debian-based systems (Ubuntu)
+      apt:
+        name: certbot
+        state: present
+      when: "'Ubuntu' in os_pretty_name"
+
+    - name: Install OpenSSH Server on RedHat-based systems (RHEL) using dnf
+      dnf:
+        name: openssh-server
+        state: present
+      when: "'Red Hat' in os_pretty_name"
+
+    - name: Install pip3 on RedHat-based systems (RHEL)
+      dnf:
+        name: python3-pip
+        state: present
+      when: "'Red Hat' in os_pretty_name"
+
+    - name: Install Certbot on RedHat-based systems (RHEL) using pip
+      pip:
+        name: certbot
+        state: present
+      when: "'Red Hat' in os_pretty_name"
+
+    - name: Install OpenSSH on Amazon Linux 2023 using dnf
+      dnf:
+        name: openssh-server
+        state: present
+      when: "'Amazon Linux' in os_pretty_name"
+
+    - name: Install pip3 on Amazon Linux 2023
+      dnf:
+        name: python3-pip
+        state: present
+      when: "'Amazon Linux' in os_pretty_name"
+
+    - name: Install Certbot on Amazon Linux 2023 using pip
+      pip:
+        name: certbot
+        state: present
+      when: "'Amazon Linux' in os_pretty_name"
+
+    - name: Check Certbot version
+      command: "certbot --version"
+      register: certbot_version
+      environment:
+        PATH: "/usr/local/bin:{{ ansible_env.PATH }}"
+      ignore_errors: yes
+
+    - name: Display Certbot version
+      debug:
+        msg: "Certbot version: {{ certbot_version.stdout }}"
+      when: certbot_version.rc == 0
+
+    - name: Check OpenSSH version
+      command: ssh -V
+      register: openssh_version
+      ignore_errors: yes
+
+    - name: Display OpenSSH version
+      debug:
+        msg: "OpenSSH version: {{ openssh_version.stderr }}"
+      when: openssh_version.rc == 0
