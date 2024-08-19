@@ -31,3 +31,11 @@ output "node_group_names" {
     key => replace(node_group.node_group_id, "${local.cluster_name}:", "")
   }
 }
+
+# output "eks_module_attributes" {
+#   value = module.eks
+# }
+
+output "cluster_oidc_issuer" {
+  value = "https://oidc.eks.${var.region}.amazonaws.com/id/${module.eks.cluster_oidc_issuer_url}"
+}

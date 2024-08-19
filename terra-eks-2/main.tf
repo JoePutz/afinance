@@ -105,6 +105,11 @@ resource "aws_iam_role" "aline-cluster-role-jp" {
   })
 }
 
+resource "aws_iam_role_policy_attachment" "aline-cluster-role-cloudwatch_agent_policy" {
+  role       = aws_iam_role.aline-cluster-role-jp.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+}
+
 resource "aws_iam_role_policy_attachment" "eks_cluster_role_EKSClusterPolicy_attachment" {
     policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
     role = aws_iam_role.aline-cluster-role-jp.name
@@ -115,10 +120,10 @@ resource "aws_iam_role_policy_attachment" "eks_cluster_role_EKSServicePolicy_att
     role = aws_iam_role.aline-cluster-role-jp.name
 }
  
-resource "aws_iam_role_policy_attachment" "eks_cluster_role_EKSVPCResouceController_attachment" {
-    policy_arn = "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController"
-    role = aws_iam_role.aline-cluster-role-jp.name
-}
+# resource "aws_iam_role_policy_attachment" "eks_cluster_role_EKSVPCResouceController_attachment" {
+#     policy_arn = "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController"
+#     role = aws_iam_role.aline-cluster-role-jp.name
+# }
 
 # variable "iam_role_base_name" {
 #   description = "Base name of the IAM role"
@@ -158,9 +163,14 @@ resource "aws_iam_role_policy_attachment" "eks_nodegroup_role_EKSWorkerNodePolic
   role       = aws_iam_role.eks_nodegroup_role_jp.name
 }
  
-resource "aws_iam_role_policy_attachment" "eks_nodegroup_role_RDS_DataFullAccess_attachment" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonRDSDataFullAccess"
+# resource "aws_iam_role_policy_attachment" "eks_nodegroup_role_RDS_DataFullAccess_attachment" {
+#   policy_arn = "arn:aws:iam::aws:policy/AmazonRDSDataFullAccess"
+#   role       = aws_iam_role.eks_nodegroup_role_jp.name
+# }
+
+resource "aws_iam_role_policy_attachment" "cloudwatch_agent_policy" {
   role       = aws_iam_role.eks_nodegroup_role_jp.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
 }
 
 #Establish EKS nodegroup security group
@@ -236,6 +246,40 @@ module "rds_security_group" {
       cidr_blocks = data.aws_vpc.default.cidr_block
     },
   ]
+}
+
+resource "aws_iam_role" "cloudwatch_agent_irsa" {
+  name               = "service-account-role-jp"
+  assume_role_policy = data.aws_iam_policy_document.cloudwatch_agent_assume_role_policy.json
+}
+
+data "aws_iam_policy_document" "cloudwatch_agent_assume_role_policy" {
+  statement {
+    effect = "Allow"
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+
+    principals {
+      type        = "Federated"
+      identifiers = [module.eks.oidc_provider_arn]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "${module.eks.oidc_provider}:sub"
+      values   = ["system:serviceaccount:amazon-cloudwatch:cloudwatch-agent"]
+    }
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "cloudwatch_agent_attach_policy" {
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+  role       = aws_iam_role.cloudwatch_agent_irsa.name
+}
+
+resource "aws_eks_addon" "cloudwatch_observability" {
+  cluster_name             = module.eks.cluster_name
+  addon_name               = "amazon-cloudwatch-observability"
+  service_account_role_arn = aws_iam_role.cloudwatch_agent_irsa.arn
 }
 
 data "aws_secretsmanager_secret" "notification_email" {
