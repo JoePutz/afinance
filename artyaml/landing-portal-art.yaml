@@ -1,54 +1,51 @@
-# portal-admin-deployment.yaml
+# portal-landing-deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: admin-portal
+  name: landing-portal
   labels:
-    app: admin-portal
+    app: landing-portal
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: admin-portal
+      app: landing-portal
   template:
     metadata:
       labels:
-        app: admin-portal
+        app: landing-portal
         target: portals
     spec:
       containers:
-      - name: admin-portal
-        image: 767397723308.dkr.ecr.us-east-1.amazonaws.com/aline-financial-jp:admin-v10
+      - name: landing-portal
+        image: joehost.jfrog.io/docker-local-docker-local/landing-portal
         imagePullPolicy: Always
         ports:
-        - containerPort: 3000
+        - containerPort: 3007
         env:
-        - name: REACT_APP_API_BASEURL
+        - name: REACT_APP_API
           valueFrom:
             configMapKeyRef:
               name: aline-config
               key: GATEWAY_URL
-        - name: REACT_APP_TOKEN_NAME
-          value: x2wOrQfY6RQIfE1ETwZtpflC19KyfN9N
-        - name: REACT_APP_BROKER_URL
+        - name: REACT_APP_MEMBER_DASHBOARD_URL
           valueFrom:
             configMapKeyRef:
               name: aline-config
-              key: PORTAL_LANDING
+              key: PORTAL_DASHBOARD
 
 ---
-# portal-admin-service.yaml
+# portal-landing-service.yaml
 apiVersion: v1
 kind: Service
 metadata:
-  name: admin-lb
+  name: landing-lb
 spec:
   type: LoadBalancer
   selector:
-    app: admin-portal
+    app: landing-portal
   ports:
     - protocol: TCP
-      port: 3000
+      port: 3007
       targetPort: 80
-
 

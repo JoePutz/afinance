@@ -248,11 +248,13 @@ module "rds_security_group" {
   ]
 }
 
+#Cloudwatch Agent IAM Role
 resource "aws_iam_role" "cloudwatch_agent_irsa" {
   name               = "service-account-role-jp"
   assume_role_policy = data.aws_iam_policy_document.cloudwatch_agent_assume_role_policy.json
 }
 
+#Specific policies for IAM role
 data "aws_iam_policy_document" "cloudwatch_agent_assume_role_policy" {
   statement {
     effect = "Allow"
@@ -271,6 +273,7 @@ data "aws_iam_policy_document" "cloudwatch_agent_assume_role_policy" {
   }
 }
 
+#Policy to function as cloudwatch agent
 resource "aws_iam_role_policy_attachment" "cloudwatch_agent_attach_policy" {
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
   role       = aws_iam_role.cloudwatch_agent_irsa.name

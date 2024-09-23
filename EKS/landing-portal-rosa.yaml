@@ -1,0 +1,90 @@
+# portal-landing-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: portal-landing-green
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: portal-landing-green
+  template:
+    metadata:
+      labels:
+        app: portal-landing-green
+    spec:
+      containers:
+      - name: portal-landing-green
+        image:  767397723308.dkr.ecr.us-east-1.amazonaws.com/aline-financial-jp:landing-portal-rosa7
+        ports:
+        - containerPort: 80
+
+---
+# portal-landing-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: portal-landing-green
+spec:
+  selector:
+    app: portal-landing-green
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+ 
+ 
+ 
+
+
+# # portal-landing-deployment.yaml
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: landing-portal
+#   labels:
+#     app: landing-portal
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: landing-portal
+#   template:
+#     metadata:
+#       labels:
+#         app: landing-portal
+#         target: portals
+#     spec:
+#       containers:
+#       - name: landing-portal
+#         image: 767397723308.dkr.ecr.us-east-1.amazonaws.com/aline-financial-jp:landing-portal-demo-v1
+#         imagePullPolicy: Always
+#         ports:
+#         - containerPort: 80
+#         env:
+#         - name: REACT_APP_API
+#           valueFrom:
+#             configMapKeyRef:
+#               name: aline-config
+#               key: GATEWAY_URL
+#         - name: REACT_APP_MEMBER_DASHBOARD_URL
+#           valueFrom:
+#             configMapKeyRef:
+#               name: aline-config
+#               key: PORTAL_DASHBOARD
+
+# ---
+# # portal-landing-service.yaml
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: landing-lb
+# spec:
+#   type: LoadBalancer
+#   selector:
+#     app: landing-portal
+#   ports:
+#     - protocol: TCP
+#       port: 80
+#       targetPort: 80
+

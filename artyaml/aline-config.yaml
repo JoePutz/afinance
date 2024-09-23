@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aline-config
+data:
+  PORTAL_LANDING: "http://a07dff4af00f9458b93c1f384f619955-953394416.us-east-1.elb.amazonaws.com:3007"
+  PORTAL_DASHBOARD: "http://a7d5cb83d24f2440b9ab4e679955bf0e-885102123.us-east-1.elb.amazonaws.com:4200"
+  PORTAL_ADMIN: "http://aa165e51750be4135adf1716f6a271dc-1269160691.us-east-1.elb.amazonaws.com:3000"
+  GATEWAY_URL: "http://a4d98e47c12f34885ae3b657f7859e5c-1182517644.us-east-1.elb.amazonaws.com:8080"
+  API: "http://a4d98e47c12f34885ae3b657f7859e5c-1182517644.us-east-1.elb.amazonaws.com:8080/api"
