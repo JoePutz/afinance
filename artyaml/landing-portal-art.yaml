@@ -33,6 +33,8 @@ spec:
             configMapKeyRef:
               name: aline-config
               key: PORTAL_DASHBOARD
+      imagePullSecrets:
+      - name: jfrog-secret
 
 ---
 # portal-landing-service.yaml
