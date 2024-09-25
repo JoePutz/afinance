@@ -180,11 +180,17 @@ resource "aws_security_group" "eks_nodegroup_sg_jp" {
 
     vpc_id = data.aws_vpc.default.id
 
-    ingress {
-        from_port = 22
-        to_port = 22
-        protocol = "tcp"
-        cidr_blocks = ["100.7.200.240/32"]
+    # ingress {
+    #     from_port = 22
+    #     to_port = 22
+    #     protocol = "tcp"
+    #     cidr_blocks = ["100.7.200.240/32"]
+    # }
+        ingress {
+        from_port = 0
+        to_port = 0
+        protocol = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
     }
 
     egress {
@@ -248,209 +254,209 @@ module "rds_security_group" {
   ]
 }
 
-#Cloudwatch Agent IAM Role
-resource "aws_iam_role" "cloudwatch_agent_irsa" {
-  name               = "service-account-role-jp"
-  assume_role_policy = data.aws_iam_policy_document.cloudwatch_agent_assume_role_policy.json
-}
+# #Cloudwatch Agent IAM Role
+# resource "aws_iam_role" "cloudwatch_agent_irsa" {
+#   name               = "service-account-role-jp"
+#   assume_role_policy = data.aws_iam_policy_document.cloudwatch_agent_assume_role_policy.json
+# }
 
-#Specific policies for IAM role
-data "aws_iam_policy_document" "cloudwatch_agent_assume_role_policy" {
-  statement {
-    effect = "Allow"
-    actions = ["sts:AssumeRoleWithWebIdentity"]
+# #Specific policies for IAM role
+# data "aws_iam_policy_document" "cloudwatch_agent_assume_role_policy" {
+#   statement {
+#     effect = "Allow"
+#     actions = ["sts:AssumeRoleWithWebIdentity"]
 
-    principals {
-      type        = "Federated"
-      identifiers = [module.eks.oidc_provider_arn]
-    }
+#     principals {
+#       type        = "Federated"
+#       identifiers = [module.eks.oidc_provider_arn]
+#     }
 
-    condition {
-      test     = "StringEquals"
-      variable = "${module.eks.oidc_provider}:sub"
-      values   = ["system:serviceaccount:amazon-cloudwatch:cloudwatch-agent"]
-    }
-  }
-}
+#     condition {
+#       test     = "StringEquals"
+#       variable = "${module.eks.oidc_provider}:sub"
+#       values   = ["system:serviceaccount:amazon-cloudwatch:cloudwatch-agent"]
+#     }
+#   }
+# }
 
-#Policy to function as cloudwatch agent
-resource "aws_iam_role_policy_attachment" "cloudwatch_agent_attach_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
-  role       = aws_iam_role.cloudwatch_agent_irsa.name
-}
+# #Policy to function as cloudwatch agent
+# resource "aws_iam_role_policy_attachment" "cloudwatch_agent_attach_policy" {
+#   policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+#   role       = aws_iam_role.cloudwatch_agent_irsa.name
+# }
 
-resource "aws_eks_addon" "cloudwatch_observability" {
-  cluster_name             = module.eks.cluster_name
-  addon_name               = "amazon-cloudwatch-observability"
-  service_account_role_arn = aws_iam_role.cloudwatch_agent_irsa.arn
-}
+# resource "aws_eks_addon" "cloudwatch_observability" {
+#   cluster_name             = module.eks.cluster_name
+#   addon_name               = "amazon-cloudwatch-observability"
+#   service_account_role_arn = aws_iam_role.cloudwatch_agent_irsa.arn
+# }
 
-data "aws_secretsmanager_secret" "notification_email" {
-  name = "notification_email"
-}
+# data "aws_secretsmanager_secret" "notification_email" {
+#   name = "notification_email"
+# }
 
-data "aws_secretsmanager_secret_version" "notification_email" {
-  secret_id = data.aws_secretsmanager_secret.notification_email.id
-}
+# data "aws_secretsmanager_secret_version" "notification_email" {
+#   secret_id = data.aws_secretsmanager_secret.notification_email.id
+# }
 
-locals {
-  notification_email = jsondecode(data.aws_secretsmanager_secret_version.notification_email.secret_string).email
-}
+# locals {
+#   notification_email = jsondecode(data.aws_secretsmanager_secret_version.notification_email.secret_string).email
+# }
 
-# Create CloudWatch Dashboard
-resource "aws_cloudwatch_dashboard" "eks_cluster_dashboard_jp" {
-  dashboard_name = "EKSClusterDashboardJP"
+# # Create CloudWatch Dashboard
+# resource "aws_cloudwatch_dashboard" "eks_cluster_dashboard_jp" {
+#   dashboard_name = "EKSClusterDashboardJP"
   
-  dashboard_body = jsonencode({
-    widgets = [
-      {
-        type = "metric",
-        x = 12,
-        y = 12,
-        width = 12,
-        height = 6,
-        properties = {
-          metrics = [
-            [ "AWS/Logs", "IncomingLogEvents", "LogGroupName", "/aws/eks/${local.cluster_name}/cluster" ],
-            [ ".", "IncomingBytes", ".", "/aws/eks/${local.cluster_name}/cluster" ],
-          ],
-          view = "timeSeries",
-          stacked = false,
-          region = var.region,
-          title = "EKS Incoming Log Events",
-        }
-      },
-      {
-        type = "metric",
-        x = 0,
-        y = 6,
-        width = 12,
-        height = 6,
-        properties = {
-          metrics = [
-            [ "AWS/RDS", "CPUUtilization", "DBInstanceIdentifier", module.db.db_instance_identifier ],
-            [ ".", "FreeStorageSpace", ".", module.db.db_instance_identifier ],
-          ],
-          view = "timeSeries",
-          stacked = false,
-          region = var.region,
-          title = "RDS Metrics",
-        }
-      },
-      {
-        "type": "metric",
-        "x": 0,
-        "y": 0,
-        "width": 12,
-        "height": 6,
-        "properties": {
-          "metrics": [
-            [ "ContainerInsights", "node_cpu_utilization", "ClusterName", local.cluster_name ],
-            [ ".", "node_memory_utilization", ".", local.cluster_name ]
-          ],
-          "view": "timeSeries",
-          "stacked": false,
-          "region": var.region,
-          "title": "Node CPU & Memory Utilization"
-        }
-      },
-      {
-        "type": "metric",
-        "x": 0,
-        "y": 12,
-        "width": 12,
-        "height": 6,
-        "properties": {
-          "metrics": [
-            [ "ContainerInsights", "node_filesystem_utilization", "ClusterName", local.cluster_name ]
-          ],
-          "view": "timeSeries",
-          "stacked": false,
-          "region": var.region,
-          "title": "Node Disk Space Utilization"
-        }
-      },
-      {
-        "type": "metric",
-        "x": 12,
-        "y": 0,
-        "width": 12,
-        "height": 6,
-        "properties": {
-          "metrics": [
-            [ "AWS/RDS", "DatabaseConnections", "DBInstanceIdentifier", module.db.db_instance_identifier ]
-          ],
-          "view": "timeSeries",
-          "stacked": false,
-          "region": var.region,
-          "title": "Database Connections"
-        }
-      },
-      {
-        "type": "metric",
-        "x": 12,
-        "y": 6,
-        "width": 12,
-        "height": 6,
-        "properties": {
-          "metrics": [
-            [ "AWS/RDS", "ReadLatency", "DBInstanceIdentifier", module.db.db_instance_identifier ],
-            [ ".", "WriteLatency", ".", module.db.db_instance_identifier ]
-          ],
-          "view": "timeSeries",
-          "stacked": false,
-          "region": var.region,
-          "title": "Read/Write Latency"
-        }
-      },
-      {
-        "type": "metric",
-        "x": 0,
-        "y": 24,
-        "width": 12,
-        "height": 6,
-        "properties": {
-          "metrics": [
-            [ "AWS/ApplicationELB", "RequestCount", "LoadBalancer", "<load_balancer_name>" ]
-          ],
-          "view": "timeSeries",
-          "stacked": false,
-          "region": var.region,
-          "title": "ELB Request Count"
-        }
-      },
-    ]
-  })
-}
+#   dashboard_body = jsonencode({
+#     widgets = [
+#       {
+#         type = "metric",
+#         x = 12,
+#         y = 12,
+#         width = 12,
+#         height = 6,
+#         properties = {
+#           metrics = [
+#             [ "AWS/Logs", "IncomingLogEvents", "LogGroupName", "/aws/eks/${local.cluster_name}/cluster" ],
+#             [ ".", "IncomingBytes", ".", "/aws/eks/${local.cluster_name}/cluster" ],
+#           ],
+#           view = "timeSeries",
+#           stacked = false,
+#           region = var.region,
+#           title = "EKS Incoming Log Events",
+#         }
+#       },
+#       {
+#         type = "metric",
+#         x = 0,
+#         y = 6,
+#         width = 12,
+#         height = 6,
+#         properties = {
+#           metrics = [
+#             [ "AWS/RDS", "CPUUtilization", "DBInstanceIdentifier", module.db.db_instance_identifier ],
+#             [ ".", "FreeStorageSpace", ".", module.db.db_instance_identifier ],
+#           ],
+#           view = "timeSeries",
+#           stacked = false,
+#           region = var.region,
+#           title = "RDS Metrics",
+#         }
+#       },
+#       {
+#         "type": "metric",
+#         "x": 0,
+#         "y": 0,
+#         "width": 12,
+#         "height": 6,
+#         "properties": {
+#           "metrics": [
+#             [ "ContainerInsights", "node_cpu_utilization", "ClusterName", local.cluster_name ],
+#             [ ".", "node_memory_utilization", ".", local.cluster_name ]
+#           ],
+#           "view": "timeSeries",
+#           "stacked": false,
+#           "region": var.region,
+#           "title": "Node CPU & Memory Utilization"
+#         }
+#       },
+#       {
+#         "type": "metric",
+#         "x": 0,
+#         "y": 12,
+#         "width": 12,
+#         "height": 6,
+#         "properties": {
+#           "metrics": [
+#             [ "ContainerInsights", "node_filesystem_utilization", "ClusterName", local.cluster_name ]
+#           ],
+#           "view": "timeSeries",
+#           "stacked": false,
+#           "region": var.region,
+#           "title": "Node Disk Space Utilization"
+#         }
+#       },
+#       {
+#         "type": "metric",
+#         "x": 12,
+#         "y": 0,
+#         "width": 12,
+#         "height": 6,
+#         "properties": {
+#           "metrics": [
+#             [ "AWS/RDS", "DatabaseConnections", "DBInstanceIdentifier", module.db.db_instance_identifier ]
+#           ],
+#           "view": "timeSeries",
+#           "stacked": false,
+#           "region": var.region,
+#           "title": "Database Connections"
+#         }
+#       },
+#       {
+#         "type": "metric",
+#         "x": 12,
+#         "y": 6,
+#         "width": 12,
+#         "height": 6,
+#         "properties": {
+#           "metrics": [
+#             [ "AWS/RDS", "ReadLatency", "DBInstanceIdentifier", module.db.db_instance_identifier ],
+#             [ ".", "WriteLatency", ".", module.db.db_instance_identifier ]
+#           ],
+#           "view": "timeSeries",
+#           "stacked": false,
+#           "region": var.region,
+#           "title": "Read/Write Latency"
+#         }
+#       },
+#       {
+#         "type": "metric",
+#         "x": 0,
+#         "y": 24,
+#         "width": 12,
+#         "height": 6,
+#         "properties": {
+#           "metrics": [
+#             [ "AWS/ApplicationELB", "RequestCount", "LoadBalancer", "<load_balancer_name>" ]
+#           ],
+#           "view": "timeSeries",
+#           "stacked": false,
+#           "region": var.region,
+#           "title": "ELB Request Count"
+#         }
+#       },
+#     ]
+#   })
+# }
 
-resource "aws_cloudwatch_metric_alarm" "rds_low_memory_alarm" {
-  alarm_name          = "RDSLowMemoryAlarm"
-  comparison_operator = "LessThanOrEqualToThreshold"
-  evaluation_periods  = 1
-  metric_name         = "FreeableMemory"
-  namespace           = "AWS/RDS"
-  period              = 300  # 5 minutes
-  statistic           = "Average"
-  threshold           = 1073741824  # 1 GB in bytes
-  alarm_description   = "Alarm when RDS instance freeable memory is below 1GB (approx. 10% of total memory for many instance types)."
-  actions_enabled     = true
-  alarm_actions       = [aws_sns_topic.rds_alarm_topic.arn]
-  ok_actions          = [aws_sns_topic.rds_alarm_topic.arn]
-  insufficient_data_actions = []
+# resource "aws_cloudwatch_metric_alarm" "rds_low_memory_alarm" {
+#   alarm_name          = "RDSLowMemoryAlarm"
+#   comparison_operator = "LessThanOrEqualToThreshold"
+#   evaluation_periods  = 1
+#   metric_name         = "FreeableMemory"
+#   namespace           = "AWS/RDS"
+#   period              = 300  # 5 minutes
+#   statistic           = "Average"
+#   threshold           = 1073741824  # 1 GB in bytes
+#   alarm_description   = "Alarm when RDS instance freeable memory is below 1GB (approx. 10% of total memory for many instance types)."
+#   actions_enabled     = true
+#   alarm_actions       = [aws_sns_topic.rds_alarm_topic.arn]
+#   ok_actions          = [aws_sns_topic.rds_alarm_topic.arn]
+#   insufficient_data_actions = []
 
-  dimensions = {
-    DBInstanceIdentifier = module.db.db_instance_identifier
-  }
+#   dimensions = {
+#     DBInstanceIdentifier = module.db.db_instance_identifier
+#   }
 
-  treat_missing_data = "breaching"
-}
+#   treat_missing_data = "breaching"
+# }
 
-resource "aws_sns_topic" "rds_alarm_topic" {
-  name = "rds_alarm_topic"
-}
+# resource "aws_sns_topic" "rds_alarm_topic" {
+#   name = "rds_alarm_topic"
+# }
 
-resource "aws_sns_topic_subscription" "rds_alarm_topic_subscription" {
-  topic_arn = aws_sns_topic.rds_alarm_topic.arn
-  protocol  = "email"
-  endpoint  = local.notification_email
-}
+# resource "aws_sns_topic_subscription" "rds_alarm_topic_subscription" {
+#   topic_arn = aws_sns_topic.rds_alarm_topic.arn
+#   protocol  = "email"
+#   endpoint  = local.notification_email
+# }
