@@ -1,3 +1,4 @@
+.gitignore
 /throw-awy
 /start-here
 /terraform
@@ -7,3 +8,14 @@
 /test
 /example
 *.zip
+/aline-account-microservice
+/aline-admin-portal
+/aline-bank-microservice
+/aline-gateway
+/aline-landing-portal
+/aline-transaction-microservice
+/aline-underwriter-microservice
+/aline-user-microservice
+/member-dashboard
+*.tfstate
+terraform.tfstate
